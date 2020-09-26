@@ -5,14 +5,18 @@ import (
 	"os"
 
 	_ "github.com/mattn/go-sqlite3"
-	
+
+	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
 
+	"mwlog/db"
 	"mwlog/lshow"
+	"mwlog/ui"
 )
 
 const appID = "com.github.graynerd.mwlog"
+const bFile = "main.ui"
 
 func main() {
 	// Create a new application.
@@ -20,48 +24,41 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
-	
-	// Connect function to application startup event, this is not required.
+
 	application.Connect("startup", func() {
-		// os.Remove("mw.log.db")
-		openDB()
-	})
-	
-	// Connect function to application activate event
-	application.Connect("activate", func() {
-		log.Println("application activate")
+		db.OpenDB()
+		application.Connect("activate", func() { log.Println("application activate") })
+		// application.Connect("shutdown", func() { log.Println("application shutdown") })
 
 		// Get the GtkBuilder UI definition in the glade file.
-		builder, err := gtk.BuilderNewFromFile("main.ui")
-		if err != nil {
-			log.Panic(err)
+		if err := ui.LoadBuilder(bFile); err != nil {
+			log.Fatalf("Unable to load %v", bFile)
 		}
 
-		ls, err := getListStore(builder, "liststore")
+		win, err := ui.GetWindow("main_window")
 		if err != nil {
-			log.Panic(err)
-		}
-		
-		win, err := getWindow(builder, "main_window")
-		if err != nil {
-			log.Panic(err)
+			log.Fatalln(err)
 		}
 
 		// Map the handlers to callback functions, and connect the signals to the Builder.
-		 var signals = map[string]interface{}{
-			"import_fcc":   func() { importFCC(win) },
-			"load_ls": 		func() { lshow.LoadLS(sqldb, ls)},
+		var signals = map[string]interface{}{
+			"on_import_fcc_activate":          func() { db.ImportFCC() },
+			"on_display_fcc_activate":         func() { lshow.LoadLS() },
+			"on_lg_date_focus_out_event":      func() { validateDate() },
+			"on_lg_callsign_focus_out_event":  func() { validateCall() },
+			"on_notebook_switch_page":         func(n *gtk.Notebook, p *gtk.Widget, pn int) { notebookSwitcher(pn) },
+			"on_cx1_clicked":                  func(tv *gtk.TreeView, s *gtk.TreePath) { sidebarSelected(s) },
+			"on_cancel_btn_clicked":           func() { clearLogEntry(); prefillLogEntry() },
+			"on_ok_btn_clicked":               func() { saveLogEntry(0) },
+			"on_logbook_tree_key_press_event": func(tv *gtk.TreeView, e *gdk.Event) { logbookDeleteSelected(tv, e) },
+			"on_logbook_tree_row_activated":   func(tv *gtk.TreeView) { logbookEditSelected(tv)},
 		}
-		builder.ConnectSignals(signals)
+		ui.ConnectSignals(signals)
 
-		// Show the Window and all of its components.
+		buildSidebar()
+		initLogBook()
 		win.ShowAll()
 		application.AddWindow(win)
-	})
-
-	// Connect function to application shutdown event, this is not required.
-	application.Connect("shutdown", func() {
-		log.Println("application shutdown")
 	})
 
 	// Launch the application

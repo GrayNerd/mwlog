@@ -4,12 +4,14 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+
 	// "sync"
 
 	"io/ioutil"
 	"log"
 	"strings"
 
+	"strconv"
 	// "github.com/gotk3/gotk3/glib"
 	// "github.com/gotk3/gotk3/gtk"
 )
@@ -29,9 +31,9 @@ func ImportFCC() {
 	// 	dialog.Destroy()
 	// })
 	// glib.IdleAdd(dialog.ShowNow)
-	
+
 	var res *http.Response
-	res, err := http.Get("https://transition.fcc.gov/fcc-bin/amq?call=&arn=&state=&city=&freq=530&fre2=1700&type=0&facid=&class=&list=4&NextTab=Results+to+Next+Page%2FTab&dist=&dlat2=&mlat2=&slat2=&NS=N&dlon2=&mlon2=&slon2=&EW=W&size=9")
+	res, err := http.Get("https://transition.fcc.gov/fcc-bin/amq?call=&arn=&state=&city=&freq=530&fre2=1700&type=0&facid=&class=&list=4&NextTab=Results+to+Next+Page%2FTab&dist=10000&dlat2=50&mlat2=30&slat2=&NS=N&dlon2=104&mlon2=30&slon2=&EW=W&size=9")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -66,33 +68,45 @@ func ImportFCC() {
 			break
 		}
 		columns := strings.Split(row, "|")
-		callsign := strings.Trim(columns[1], " ")
-		if callExists(callsign) == true {
-			pattern := formatPattern(callsign, columns[5], columns[6])
-			power := formatPower(callsign, strings.Trim((columns[14])[0:5], " "), columns[6])
+		station := strings.Trim(columns[1], " ")
+		if callExists(station) == true {
+			pattern := formatPattern(station, columns[5], columns[6])
+			power := formatPower(station, strings.Trim((columns[14])[0:5], " "), columns[6])
 
-			s, err := sqldb.Prepare(fmt.Sprintf("update fcc set pattern = ?, power = ? where callsign = ?"))
-			_, err = s.Exec(pattern, power, callsign)
+			s, err := sqldb.Prepare(fmt.Sprintf("update fcc set pattern = ?, power = ? where station = ?"))
+			_, err = s.Exec(pattern, power, station)
 			if err != nil {
 				log.Fatalln(err.Error())
 			}
 		} else {
-			// var frequency int
-			// fmt.Sscanf(columns[2], "%d", &frequency)
 			freq := strings.Trim(columns[2][0:5], " ")
 			city := strings.Trim(columns[10], " ")
 			stateprov := strings.Trim(columns[11], " ")
 			country := strings.Trim(columns[12], " ")
 			class := strings.Trim(columns[7], " ")
 
+			latHour, _ := strconv.Atoi(strings.Trim(columns[20], " "))
+			latMin, _ := strconv.Atoi(strings.Trim(columns[21], " "))
+			latSec, _ := strconv.Atoi(columns[22][0:2])
+			longHour, _ := strconv.Atoi(strings.Trim(columns[24], " "))
+			longMin, _ := strconv.Atoi(strings.Trim(columns[25], " "))
+			longSec, _ := strconv.Atoi(columns[26][0:2])
+
+			latitude := float64(latHour) + (float64(latMin)/60.0) + (float64(latSec)/3600.0)
+			longitude := (float64(longHour) + (float64(longMin)/60.0) + (float64(longSec)/3600.0)) * -1.0
+
+			distance, _ := strconv.ParseFloat(strings.Trim(columns[28], " km"), 64)
+			bearing, _ := strconv.ParseFloat(strings.Trim(columns[30], " deg"), 64)
+			
 			var power, pattern string
 			power = formatPower(power, strings.Trim((columns[14])[0:5], " "), columns[6])
 			pattern = formatPattern(pattern, strings.Trim(columns[5], " "), columns[6])
 
-			err = insertStation(sqldb, callsign, freq, city, stateprov, country, power, pattern, class)
+			err = insertStation(sqldb, station, freq, city, stateprov, country, power, pattern, class,
+				latitude, longitude, distance, bearing)
 			if err != nil {
 				log.Println(err)
-			}	
+			}
 		}
 	}
 	// txt, _ = label.GetText()
@@ -102,23 +116,27 @@ func ImportFCC() {
 	//	dialog.Destroy()
 }
 
-func insertStation(db *sql.DB, callsign string, frequency string, city string, prov string,
-	country string, power string, pattern string, ch string) error {
-	log.Printf("Inserting station record ... %v %s\n", frequency, callsign)
-	insertStationSQL := `INSERT INTO fcc(callsign, frequency, city, prov, country, power, pattern, class) 
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+func insertStation(db *sql.DB, station string, frequency string, city string, prov string,
+	country string, power string, pattern string, ch string,
+	latitude, longitude, distance, bearing float64) error {
+
+	log.Printf("Inserting station record ... %v %s\n", frequency, station)
+	insertStationSQL := `INSERT INTO fcc(station, frequency, city, prov, country, power, pattern, class, 
+										 latitude, longitude, distance, bearing) 
+							VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
 	statement, err := db.Prepare(insertStationSQL)
 	if err != nil {
 		return err
 	}
-	if _, err = statement.Exec(callsign, frequency, city, prov, country, power, pattern, ch); err != nil {
+	if _, err = statement.Exec(station, frequency, city, prov, country, power, pattern, ch,
+		latitude, longitude, distance, bearing); err != nil {
 		return err
 	}
 	return nil
 }
 
-func callExists(callsign string) bool {
-	sql := fmt.Sprintf("select count(*) from fcc where callsign = '%s'", callsign)
+func callExists(station string) bool {
+	sql := fmt.Sprintf("select count(*) from fcc where station = '%s'", station)
 	row, err := sqldb.Query(sql)
 	if err != nil {
 		log.Println(err.Error())
@@ -135,8 +153,8 @@ func callExists(callsign string) bool {
 	return false
 }
 
-func getCurrentPower(callsign string) string {
-	sql := fmt.Sprintf("select power from fcc where callsign = '%s'", callsign)
+func getCurrentPower(station string) string {
+	sql := fmt.Sprintf("select power from fcc where station = '%s'", station)
 	row, err := sqldb.Query(sql)
 	if err != nil {
 		log.Println(err.Error())
@@ -149,8 +167,8 @@ func getCurrentPower(callsign string) string {
 
 	return power
 }
-func getCurrentPattern(callsign string) string {
-	sql := fmt.Sprintf("select pattern from fcc where callsign = '%s'", callsign)
+func getCurrentPattern(station string) string {
+	sql := fmt.Sprintf("select pattern from fcc where station = '%s'", station)
 	row, err := sqldb.Query(sql)
 	if err != nil {
 		log.Println(err.Error())
@@ -164,8 +182,8 @@ func getCurrentPattern(callsign string) string {
 	return pattern
 }
 
-func formatPattern(callsign string, newPat string, opTime string) string {
-	pattern := getCurrentPattern(callsign)
+func formatPattern(station string, newPat string, opTime string) string {
+	pattern := getCurrentPattern(station)
 
 	p := strings.Split(pattern, "/")
 	l := len(p)
@@ -188,9 +206,9 @@ func formatPattern(callsign string, newPat string, opTime string) string {
 	}
 	return pattern
 }
-func formatPower(callsign string, newPow string, opTime string) string {
+func formatPower(station string, newPow string, opTime string) string {
 
-	power := getCurrentPower(callsign)
+	power := getCurrentPower(station)
 
 	p := strings.Split(power, "/")
 	l := len(p)

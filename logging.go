@@ -2,159 +2,171 @@ package main
 
 import (
 	// "fmt"
+	"fmt"
 	"log"
 	"time"
+	"strconv"
 
 	"mwlog/db"
 	"mwlog/ui"
-	// "github.com/gotk3/gotk3/gtk"
+
+	"github.com/gotk3/gotk3/gdk"
+	"github.com/gotk3/gotk3/gtk"
+
+	"github.com/keep94/sunrise"
 )
 
-var oneAndDone bool = false
+//var oneAndDone bool = false
+var loggingWindow *gtk.Window = nil
 
 func notebookSwitcher(pn int) {
 	switch pn {
 	case 1:
-		initLogEntry()
+		openLogging(0)
 	}
 }
-func initLogEntry() {
-	if callsign, err := ui.GetEntry("lg_callsign"); err == nil {
-		if s, _ := callsign.GetText(); len(s) == 0 {
-			clearLogEntry()
-			prefillLogEntry()
-		}
+func openLogging(id uint) {
+	if loggingWindow == nil {
+		loggingWindow = ui.GetWindow("logging_window")
+		loggingWindow.HideOnDelete()
+	} else {
+		loggingWindow.ShowAll()
 	}
+	btn := ui.GetButton("logging_ok_button")
+
+	if id == 0 {
+		loggingWindow.SetTitle("Add Logging")
+		btn.SetLabel("Add")
+		btn.Connect("clicked", func() { saveLogEntry(loggingWindow, 0) })
+		clearLogEntry()
+		prefillLogEntry()
+	} else {
+		loggingWindow.SetTitle("Edit Logging")
+		btn.SetLabel("Update")
+		btn.Connect("clicked", func(b *gtk.Button) { saveLogEntry(loggingWindow, int(id)) })
+		loadForm(id)
+	}
+	loggingWindow.ShowAll()
 }
 
 func prefillLogEntry() {
-	dt, err := ui.GetEntry("lg_date")
-	if err != nil {
-		log.Println(err)
-	}
-	tm, err := ui.GetEntry("lg_time")
-	if err != nil {
-		log.Println(err)
-	}
+	dt := ui.GetEntry("logging_date")
+	tm := ui.GetEntry("logging_time")
 
 	currentTime := time.Now()
 	dt.SetText(currentTime.Format("2006-01-02"))
 	tm.SetText(currentTime.Format("1504"))
+
 }
 
 func clearLogEntry() {
-	if dt, err := ui.GetEntry("lg_date"); err == nil {
-		dt.SetText("")
-	}
-	if tm, err := ui.GetEntry("lg_time"); err == nil {
-		tm.SetText("")
-	}
+	ui.GetEntry("logging_date").SetText("")
+	ui.GetEntry("logging_time").SetText("")
+	ui.GetEntry("logging_station").SetText("")
+	ui.GetEntry("logging_frequency").SetText("")
+	ui.GetEntry("logging_city").SetText("")
+	ui.GetEntry("logging_province").SetText("")
+	ui.GetEntry("logging_country").SetText("")
+	ui.GetEntry("logging_signal").SetText("")
+	ui.GetTextBuffer("logging_remarks_buffer").SetText("")
+	ui.GetComboBox("logging_receiver").SetActive(0)
+	ui.GetComboBox("logging_antenna").SetActive(0)
 
-	if callsign, err := ui.GetEntry("lg_callsign"); err == nil {
-		callsign.SetText("")
-	}
-	if freq, err := ui.GetEntry("lg_frequency"); err == nil {
-		freq.SetText("")
-	}
-	if loc, err := ui.GetEntry("lg_city"); err == nil {
-		loc.SetText("")
-	}
-	if loc, err := ui.GetEntry("lg_province"); err == nil {
-		loc.SetText("")
-	}
-	if loc, err := ui.GetEntry("lg_country"); err == nil {
-		loc.SetText("")
-	}
+	ui.GetLabel("logging_latitude").SetText("")
+	ui.GetLabel("logging_longitude").SetText("")
 
-	if sig, err := ui.GetTextBuffer("lg_signal_buffer"); err == nil {
-		sig.SetText("")
-	}
-	if prg, err := ui.GetTextBuffer("lg_programming_buffer"); err == nil {
-		prg.SetText("")
-	}
-
-	if rcvr, err := ui.GetComboBox("lg_receiver"); err != nil {
-		rcvr.SetActive(-1)
-	}
-	if ant, err := ui.GetComboBox("lg_antenna"); err == nil {
-		ant.SetActive(-1)
-	}
+	ui.GetLabel("logging_distance").SetText("")
+	ui.GetLabel("logging_bearing").SetText("")
 }
 
 func validateDate() {
-	dt, err := ui.GetEntry("lg_date")
-	if err != nil {
-		log.Println(err)
-	}
-	d, err := dt.GetText()
-
-	loc, err := time.LoadLocation("Canada/Regina")
+	ldt := ui.GetEntry("logging_date")
+	dt, err := ldt.GetText()
 	if err != nil {
 		log.Println(err)
 	}
 
-	_, err = time.ParseInLocation("2006-01-02", d, loc)
+	loc, err := time.LoadLocation("Local")
+	if err != nil {
+		log.Println(err)
+	}
+
+	_, err = time.ParseInLocation("2006-01-02", dt, loc)
 }
 
-func validateCall() {
-	if c, err := ui.GetEntry("lg_callsign"); err == nil {
-		if callsign, err := c.GetText(); err != nil {
+func validateCall(c *gtk.Entry, ev *gdk.Event) {
+	log.Println(ev)
+	station, _ := ui.GetEntry("logging_station").GetText()
+	if len(station) > 0 {
+		if err := loadFCCData(station); err != nil {
 			log.Println(err)
+			c.GrabFocus()
 		} else {
-			if err = loadFCCData(callsign); err != nil {
-				log.Println(err)
-			}
+			rise, set := calcSunrise()
+			ui.GetLabel("logging_sunrise").SetLabel(rise)
+			ui.GetLabel("logging_sunset").SetLabel(set)
 		}
 	}
 }
 
-func saveLogEntry(id uint) {
+func calcSunrise() (string, string) {
+	var s sunrise.Sunrise
+	location, err := time.LoadLocation("Local")
+	if err != nil {
+		log.Println(err)
+	}
+	dt, _ := ui.GetEntry("logging_date").GetText()
+
+	var day, month, year int
+	if _, err := fmt.Sscanf(dt, "%d-%d-%d", &year, &month, &day); err != nil {
+		log.Println(err)
+	}
+	startTime := time.Date(year, time.Month(month), day, 0, 0, 0, 0, location)
+
+	l := ui.GetLabel("logging_latitude").GetLabel()
+	lat,_ := strconv.ParseFloat(l, 64)
+	l = ui.GetLabel("logging_longitude").GetLabel()
+	long,_ := strconv.ParseFloat(l, 64)
+
+	s.Around(lat, long, startTime)
+	rise := s.Sunrise().Format("15:04")
+	set := s.Sunset().Format("15:04")
+	return rise, set
+
+}
+func saveLogEntry(win *gtk.Window, id int) {
 	var logging db.LogEntry
-	if dt, err := ui.GetEntry("lg_date"); err == nil {
-		logging.Dt, _ = dt.GetText()
-	}
-	if tm, err := ui.GetEntry("lg_time"); err == nil {
-		logging.Tm, _ = tm.GetText()
-	}
+	logging.Dt, _ = ui.GetEntry("logging_date").GetText()
+	logging.Tm, _ = ui.GetEntry("logging_time").GetText()
+	logging.Station, _ = ui.GetEntry("logging_station").GetText()
+	logging.Frequency, _ = ui.GetEntry("logging_frequency").GetText()
+	logging.City, _ = ui.GetEntry("logging_city").GetText()
+	logging.Prov, _ = ui.GetEntry("logging_province").GetText()
+	logging.Cnty, _ = ui.GetEntry("logging_country").GetText()
+	logging.Signal, _ = ui.GetEntry("logging_signal").GetText()
 
-	if callsign, err := ui.GetEntry("lg_callsign"); err == nil {
-		logging.Callsign, _ = callsign.GetText()
-	}
-	if freq, err := ui.GetEntry("lg_frequency"); err == nil {
-		logging.Frequency, _ = freq.GetText()
-	}
-	if city, err := ui.GetEntry("lg_city"); err == nil {
-		logging.City, _ = city.GetText()
-	}
-	if prov, err := ui.GetEntry("lg_province"); err == nil {
-		logging.Prov, _ = prov.GetText()
-	}
-	if cnty, err := ui.GetEntry("lg_country"); err == nil {
-		logging.Cnty, _ = cnty.GetText()
-	}
+	lrb := ui.GetTextBuffer("logging_remarks_buffer")
+	s, e := lrb.GetBounds()
+	logging.Remarks, _ = lrb.GetText(s, e, false)
 
-	if sig, err := ui.GetTextBuffer("lg_signal_buffer"); err == nil {
-		s, e := sig.GetBounds()
-		logging.Signal, _ = sig.GetText(s, e, false)
-	}
-	if prg, err := ui.GetTextBuffer("lg_programming_buffer"); err == nil {
-		s, e := prg.GetBounds()
-		logging.Programming, _ = prg.GetText(s, e, false)
-	}
+	logging.Rcvr = ui.GetComboBox("logging_receiver").GetActive()
+	logging.Ant = ui.GetComboBox("logging_antenna").GetActive()
+	logging.Latitude,_ = strconv.ParseFloat(ui.GetLabel("logging_latitude").GetLabel(), 64)
+	logging.Longitude,_ = strconv.ParseFloat(ui.GetLabel("logging_longitude").GetLabel(), 64)
+	logging.Distance, _ = strconv.ParseFloat(ui.GetLabel("logging_distance").GetLabel(), 64)
+	logging.Bearing, _ = strconv.ParseFloat(ui.GetLabel("logging_bearing").GetLabel(), 64)
+	logging.Sunrise = ui.GetLabel("logging_sunrise").GetLabel()
+	logging.Sunset = ui.GetLabel("logging_sunset").GetLabel()
 
-	if rcvr, err := ui.GetComboBox("lg_receiver"); err != nil {
-		logging.Rcvr = rcvr.GetActive()
-	}
-	if ant, err := ui.GetComboBox("lg_antenna"); err == nil {
-		logging.Ant = ant.GetActive()
-	}
 	if id != 0 {
 		logging.ID = int(id)
 		db.UpdateLogging(logging)
 	} else {
-		db.AddLogging(logging)
+		id = db.AddLogging(logging)
 	}
-	clearLogEntry()
+
+	logbookUpdateRow(id, logging)
+	win.Hide()
 }
 
 func loadForm(id uint) {
@@ -163,40 +175,21 @@ func loadForm(id uint) {
 	if err != nil {
 		log.Println(err.Error())
 	}
-	if dt, err := ui.GetEntry("lg_date"); err == nil {
-		dt.SetText(l.Dt)
-	}
-	if tm, err := ui.GetEntry("lg_time"); err == nil {
-		tm.SetText(l.Tm)
-	}
-
-	if callsign, err := ui.GetEntry("lg_callsign"); err == nil {
-		callsign.SetText(l.Callsign)
-	}
-	if freq, err := ui.GetEntry("lg_frequency"); err == nil {
-		freq.SetText(l.Frequency)
-	}
-	if loc, err := ui.GetEntry("lg_city"); err == nil {
-		loc.SetText(l.City)
-	}
-	if loc, err := ui.GetEntry("lg_province"); err == nil {
-		loc.SetText(l.Prov)
-	}
-	if loc, err := ui.GetEntry("lg_country"); err == nil {
-		loc.SetText(l.Cnty)
-	}
-
-	if sig, err := ui.GetTextBuffer("lg_signal_buffer"); err == nil {
-		sig.SetText(l.Signal)
-	}
-	if prg, err := ui.GetTextBuffer("lg_programming_buffer"); err == nil {
-		prg.SetText(l.Programming)
-	}
-
-	if rcvr, err := ui.GetComboBox("lg_receiver"); err == nil {
-		rcvr.SetActive(l.Rcvr)
-	}
-	if ant, err := ui.GetComboBox("lg_antenna"); err == nil {
-		ant.SetActive(l.Ant)
-	}
+	ui.GetEntry("logging_date").SetText(l.Dt)
+	ui.GetEntry("logging_time").SetText(l.Tm)
+	ui.GetEntry("logging_station").SetText(l.Station)
+	ui.GetEntry("logging_frequency").SetText(l.Frequency)
+	ui.GetEntry("logging_city").SetText(l.City)
+	ui.GetEntry("logging_province").SetText(l.Prov)
+	ui.GetEntry("logging_country").SetText(l.Cnty)
+	ui.GetEntry("logging_signal").SetText(l.Signal)
+	ui.GetTextBuffer("logging_remarks_buffer").SetText(l.Remarks)
+	ui.GetComboBox("logging_receiver").SetActive(l.Rcvr)
+	ui.GetComboBox("logging_antenna").SetActive(l.Ant)
+	ui.GetLabel("logging_distance").SetLabel(fmt.Sprintf("%.0f", l.Distance))
+	ui.GetLabel("logging_bearing").SetLabel(fmt.Sprintf("%.0f", l.Bearing))
+	ui.GetLabel("logging_latitude").SetLabel(fmt.Sprintf("%.0f", l.Latitude))
+	ui.GetLabel("logging_longitude").SetLabel(fmt.Sprintf("%.0f", l.Longitude))
+	ui.GetLabel("logging_sunrise").SetLabel(l.Sunrise)
+	ui.GetLabel("logging_sunset").SetLabel(l.Sunset)
 }

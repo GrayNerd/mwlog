@@ -31,32 +31,27 @@ func main() {
 		// application.Connect("shutdown", func() { log.Println("application shutdown") })
 
 		// Get the GtkBuilder UI definition in the glade file.
-		if err := ui.LoadBuilder(bFile); err != nil {
-			log.Fatalf("Unable to load %v", bFile)
-		}
+		ui.LoadBuilder(bFile)
 
-		win, err := ui.GetWindow("main_window")
-		if err != nil {
-			log.Fatalln(err)
-		}
+		win := ui.GetWindow("main_window")
 
 		// Map the handlers to callback functions, and connect the signals to the Builder.
 		var signals = map[string]interface{}{
-			"on_import_fcc_activate":          func() { db.ImportFCC() },
-			"on_display_fcc_activate":         func() { lshow.LoadLS() },
-			"on_lg_date_focus_out_event":      func() { validateDate() },
-			"on_lg_callsign_focus_out_event":  func() { validateCall() },
-			"on_notebook_switch_page":         func(n *gtk.Notebook, p *gtk.Widget, pn int) { notebookSwitcher(pn) },
-			"on_cx1_clicked":                  func(tv *gtk.TreeView, s *gtk.TreePath) { sidebarSelected(s) },
-			"on_cancel_btn_clicked":           func() { clearLogEntry(); prefillLogEntry() },
-			"on_ok_btn_clicked":               func() { saveLogEntry(0) },
-			"on_logbook_tree_key_press_event": func(tv *gtk.TreeView, e *gdk.Event) { logbookDeleteSelected(tv, e) },
-			"on_logbook_tree_row_activated":   func(tv *gtk.TreeView) { logbookEditSelected(tv)},
+			"on_import_fcc_activate":          		func() { db.ImportFCC() },
+			"on_display_fcc_activate":         		func() { lshow.LoadLS() },
+			"on_logging_date_focus_out_event":      func() { validateDate() },
+			"on_logging_station_focus_out_event":   func(c *gtk.Entry, ev *gdk.Event) { validateCall(c, ev) },
+			"on_notebook_switch_page":         		func(n *gtk.Notebook, p *gtk.Widget, pn int) { notebookSwitcher(pn) },
+			"on_sidebar_menu_clicked":              func(tv *gtk.TreeView, s *gtk.TreePath) { onSidebarMenuClicked(s) },
+			// "on_logging_ok_button_clicked":      func(b *gtk.Button, w *gtk.Window) { saveLogEntry(w, 0) },
+			"on_logging_cancel_button_clicked":     func(b *gtk.Button, w *gtk.Window) { w.Close() },
+			"on_logbook_tree_key_press_event": 		func(tv *gtk.TreeView, e *gdk.Event) { onLogbookTreeKeyPressEvent(tv, e) },
+			"on_logbook_tree_row_activated":   		func(tv *gtk.TreeView) { onLogbookTreeRowActivated(tv) },
 		}
 		ui.ConnectSignals(signals)
 
 		buildSidebar()
-		initLogBook()
+		logbookLoad()
 		win.ShowAll()
 		application.AddWindow(win)
 	})

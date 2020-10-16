@@ -24,10 +24,7 @@ const (
 // LoadLS loads the data into a liststore
 func LoadLS() {
 
-	ls, err := ui.GetListStore("liststore")
-	if err != nil {
-		log.Fatalln(err)
-	}
+	ls := ui.GetListStore("liststore")
 
 	rows := db.GetAllFCC()
 	defer rows.Close()

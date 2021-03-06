@@ -15,6 +15,7 @@ func buildSidebar() {
 	sidebarAppend(treeStore, nil, "Log Book", "0")
 	sidebarAppend(treeStore, nil, "Add Logging", "-1")
 	sidebarAppend(treeStore, nil, "Statistics", "1")
+	sidebarAppend(treeStore, nil, "Channel Notes", "1")
 	sidebarAppend(treeStore, nil, "FCC Lookup", "3")
 
 	iter :=sidebarAppend(treeStore, nil, "Settings", "4")
@@ -41,7 +42,7 @@ func onSidebarMenuClicked(tpath *gtk.TreePath) {
 	switch t {
 	case "0":
 		nb.SetCurrentPage(0)  // logbook
-		logbookLoad()
+		loadLogbook()
 		nb.ShowAll()
 	case "1":
 		// nb.SetCurrentPage(0)  // log entry

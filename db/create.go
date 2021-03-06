@@ -1,7 +1,9 @@
 package db
 
+import "fmt"
+
 func createDDL() error {
-	if err := createFCCTable(); err != nil {
+	if err := createMWListTable(); err != nil {
 		return err
 	}
 	if err := createLoggingTable(); err != nil {
@@ -16,22 +18,22 @@ func createDDL() error {
 	return nil
 }
 
-func createFCCTable() error {
-	s := `CREATE TABLE IF NOT EXISTS fcc (
-			"id"		integer NOT NULL PRIMARY KEY AUTOINCREMENT,
-			"station"	TEXT,
-			"frequency"	TEXT,
-			"city"		TEXT,
-			"prov"		TEXT,
-			"country"	TEXT,
-			"power"		TEXT,
-			"pattern"	TEXT,
-			"class"		TEXT,
-			"latitude"  REAL,
+// CreateMWListTable creates the mwlist table in the database in it doesn't already exist
+func createMWListTable() error {
+	s := `CREATE TABLE IF NOT EXISTS "mwlist" ( 
+			"id" integer NOT NULL PRIMARY KEY AUTOINCREMENT, 
+			"station" TEXT, 
+			"frequency" TEXT, 
+			"city" TEXT, 
+			"state" TEXT, 
+			"country" TEXT, 
+			"language" TEXT, 
+			"power_day" TEXT, 
+			"power_night" TEXT, 
+			"latitude" REAL,
 			"longitude" REAL,
-			"distance"  REAL,
-			"bearing"   REAL
-			);`
+			"distance" NUMERIC,
+			"bearing" NUMERIC );`
 	err := createTable(s)
 	if err != nil {
 		return err
@@ -40,20 +42,27 @@ func createFCCTable() error {
 }
 
 func createLoggingTable() error {
-	s := `CREATE TABLE IF NOT EXISTS "loggings" (
-			"ID"		INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-			"date"		TEXT NOT NULL,
-			"time"		TEXT NOT NULL,
-			"station"	TEXT NOT NULL,
-			"frequency"	TEXT NOT NULL,
-			"city"		TEXT NOT NULL,
-			"province"	TEXT,
-			"country"	TEXT NOT NULL,
-			"signal"	TEXT NOT NULL,
-			"remarks"	TEXT NOT NULL,
-			"receiver"	INTEGER NOT NULL,
-			"antenna"	INTEGER NOT NULL
-			)`
+	s := `CREATE TABLE IF NOT EXISTS "loggings" ( 
+			"id" INTEGER NOT NULL UNIQUE, 
+			"date" TEXT NOT NULL, 
+			"time" TEXT NOT NULL, 
+			"station" TEXT NOT NULL, 
+			"frequency" TEXT NOT NULL, 
+			"city" TEXT NOT NULL, 
+			"state" TEXT, 
+			"country" TEXT NOT NULL, 
+			"signal" TEXT NOT NULL, 
+			"format" TEXT, 
+			"remarks" BLOB NOT NULL, 
+			"receiver" INTEGER NOT NULL, 
+			"antenna" INTEGER NOT NULL, 
+			"latitude" NUMERIC, 
+			"longitude" NUMERIC, 
+			"distance" NUMERIC, 
+			"bearing" NUMERIC, 
+			"sunrise" INTEGER, 
+			"sunset" INTEGER, 
+			PRIMARY KEY("ID") );`
 
 	err := createTable(s)
 	if err != nil {
@@ -90,6 +99,19 @@ func createChannelTable() error {
 
 func createTable(ddl string) error {
 	stmt, err := sqldb.Prepare(ddl)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	if _, err = stmt.Exec(); err != nil {
+		return err
+	}
+	return nil
+}
+
+// TruncateTable truncates the named table
+func truncateTable(t string) error {
+	stmt, err := sqldb.Prepare(fmt.Sprintf("delete from %s", t))
 	if err != nil {
 		return err
 	}

@@ -1,9 +1,9 @@
 package ui
 
 import (
-	"fmt"
 	"log"
 
+	// "github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
 )
 
@@ -17,6 +17,7 @@ func LoadBuilder(f string) {
 	}
 	builder = b
 }
+
 // ConnectSignals just calls the builder.ConnectSignals
 func ConnectSignals(signals map[string]interface{}) {
 	builder.ConnectSignals(signals)
@@ -24,13 +25,15 @@ func ConnectSignals(signals map[string]interface{}) {
 
 // GetWindow returns a pointer to the named gtk.window
 func GetWindow(item string) *gtk.Window {
-	if obj, err := builder.GetObject(item); err == nil {
-		if win, ok := obj.(*gtk.Window); ok {
+	obj, err := builder.GetObject(item)
+	if err == nil {
+		if win, ok := obj.(*gtk.Window); !ok {
+			log.Fatalf("%v is not a gtk.Window", item)
+		} else {
 			return win
 		}
 	}
-	s := fmt.Sprintf("not a *gtk.Window: %v", item)
-	log.Fatalln(s)
+	log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	return nil
 }
 
@@ -40,9 +43,10 @@ func GetDialog(item string) *gtk.Dialog {
 		if dlg, ok := obj.(*gtk.Dialog); ok {
 			return dlg
 		}
+		log.Fatalf("%v is not a *gtk.Dialog", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.Dialog: %v", item)
-	log.Fatalln(s)
 	return nil
 }
 
@@ -52,9 +56,10 @@ func GetListStore(item string) *gtk.ListStore {
 		if ls, ok := obj.(*gtk.ListStore); ok {
 			return ls
 		}
+		log.Fatalf("%v is not a *gtk.ListStore", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.ListStore: %v", item)
-	log.Fatalln(s)
 	return nil
 }
 
@@ -64,9 +69,10 @@ func GetTreeView(item string) *gtk.TreeView {
 		if tv, ok := obj.(*gtk.TreeView); ok {
 			return tv
 		}
+		log.Fatalf("%v is not a *gtk.TreeView", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.TreeView: %v", item)
-	log.Fatalln(s)
 	return nil
 }
 
@@ -76,9 +82,10 @@ func GetCheckButton(item string) *gtk.CheckButton {
 		if cb, ok := obj.(*gtk.CheckButton); ok {
 			return cb
 		}
+		log.Fatalf("%v is not a *gtk.CheckButton", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.GetCheckButton: %v", item)
-	log.Fatalln(s)
 	return nil
 }
 
@@ -88,9 +95,10 @@ func GetEntry(item string) *gtk.Entry {
 		if e, ok := obj.(*gtk.Entry); ok {
 			return e
 		}
+		log.Fatalf("%v is not a *gtk.Entry", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.Entry: %v", item)
-	log.Fatalln(s)
 	return nil
 }
 
@@ -100,9 +108,10 @@ func GetTreeStore(item string) *gtk.TreeStore {
 		if e, ok := obj.(*gtk.TreeStore); ok {
 			return e
 		}
+		log.Fatalf("%v is not a *gtk.TreeStore", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.TreeStore: %v", item)
-	log.Fatalln(s)
 	return nil
 }
 
@@ -112,33 +121,36 @@ func GetTreeViewColumn(item string) *gtk.TreeViewColumn {
 		if e, ok := obj.(*gtk.TreeViewColumn); ok {
 			return e
 		}
+		log.Fatalf("not a *gtk.TreeViewColumn: %v", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.TreeViewColumn: %v", item)
-	log.Fatalln(s)
 	return nil
 }
 
-// GetCellRenderer returns a pointer to the named gtk.GetCellRenderer
+// GetCellRenderer returns a pointer to the named gtk.CellRenderer
 func GetCellRenderer(item string) *gtk.CellRenderer {
 	if obj, err := builder.GetObject(item); err == nil {
 		if e, ok := obj.(*gtk.CellRenderer); ok {
 			return e
 		}
+		log.Fatalf("%v is not a *gtk.CellRenderer", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.CellRenderer: %v", item)
-	log.Fatalln(s)
 	return nil
 }
 
-// GetCellRendererText returns a pointer to the named gtk.GetCellRendererText
+// GetCellRendererText returns a pointer to the named gtk.CellRendererText
 func GetCellRendererText(item string) *gtk.CellRendererText {
 	if obj, err := builder.GetObject(item); err == nil {
 		if e, ok := obj.(*gtk.CellRendererText); ok {
 			return e
 		}
+		log.Fatalf("%v is not a *gtk.CellRendererText", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.CellRendererText: %v", item)
-	log.Fatalln(s)
 	return nil
 }
 
@@ -148,9 +160,24 @@ func GetTreeSelection(item string) *gtk.TreeSelection {
 		if e, ok := obj.(*gtk.TreeSelection); ok {
 			return e
 		}
+		log.Fatalf("%v is not a *gtk.TreeSelection", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.TreeSelection: %v", item)
-	log.Fatalln(s)
+	return nil
+}
+
+
+// GetTreeModelSort returns a pointer to the named gtk.TreeModelSort
+func GetTreeModelSort(item string) *gtk.TreeModelSort {
+	if obj, err := builder.GetObject(item); err == nil {
+		if e, ok := obj.(*gtk.TreeModelSort); ok {
+			return e
+		}
+		log.Fatalf("%v is not a *gtk.TreeModelSort", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
+	}
 	return nil
 }
 
@@ -160,9 +187,10 @@ func GetNotebook(item string) *gtk.Notebook {
 		if e, ok := obj.(*gtk.Notebook); ok {
 			return e
 		}
+		log.Fatalf("%v is not a *gtk.Notebook", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.Notebook: %v", item)
-	log.Fatalln(s)
 	return nil
 }
 
@@ -172,32 +200,36 @@ func GetComboBox(item string) *gtk.ComboBox {
 		if e, ok := obj.(*gtk.ComboBox); ok {
 			return e
 		}
+		log.Fatalf("%v is not a *gtk.ComboBox", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.ComboBox: %v", item)
-	log.Fatalln(s)
 	return nil
 }
 
-// GetButton returns a pointer to the named gtk.ComboBox
+// GetButton returns a pointer to the named gtk.Button
 func GetButton(item string) *gtk.Button {
 	if obj, err := builder.GetObject(item); err == nil {
 		if e, ok := obj.(*gtk.Button); ok {
 			return e
 		}
+		log.Fatalf(" %v is not a *gtk.Button", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.Button: %v", item)
-	log.Fatalln(s)
 	return nil
 }
+
 // GetTextView returns a pointer to the named gtk.TextView
-func GetTextView(item string) *gtk.TextView{
+func GetTextView(item string) *gtk.TextView {
 	if obj, err := builder.GetObject(item); err == nil {
 		if e, ok := obj.(*gtk.TextView); ok {
 			return e
 		}
+		log.Fatalf("%v is not a *gtk.TextView", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.TextView: %v", item)
-	log.Fatalln(s)
 	return nil
 }
 
@@ -207,19 +239,61 @@ func GetTextBuffer(item string) *gtk.TextBuffer {
 		if e, ok := obj.(*gtk.TextBuffer); ok {
 			return e
 		}
+		log.Fatalf("%v is not a *gtk.TextBuffer", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.TextBuffer: %v", item)
-	log.Fatalln(s)
 	return nil
 }
+
 // GetLabel returns a pointer to the named gtk.Label
 func GetLabel(item string) *gtk.Label {
 	if obj, err := builder.GetObject(item); err == nil {
 		if e, ok := obj.(*gtk.Label); ok {
 			return e
 		}
+		log.Fatalf("%v is not a gtk.Label", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}
-	s := fmt.Sprintf("not a *gtk.Label: %v", item)
-	log.Fatalln(s)
+	return nil
+}
+
+// GetListBox returns a pointer to the named gtk.ListBox
+func GetListBox(item string) *gtk.ListBox {
+	if obj, err := builder.GetObject(item); err == nil {
+		if e, ok := obj.(*gtk.ListBox); ok {
+			return e
+		}
+		log.Fatalf("%v is not a gtk.ListBox", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
+	}
+	return nil
+}
+
+// GetImage returns a pointer to the named gtk.Image
+func GetImage(item string) *gtk.Image {
+	if obj, err := builder.GetObject(item); err == nil {
+		if e, ok := obj.(*gtk.Image); ok {
+			return e
+		}
+		log.Fatalf("%v is not a gtk.Image", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
+	}
+	return nil
+}
+
+// GetViewport returns a pointer to the named gtk.Viewport
+func GetViewport(item string) *gtk.Viewport {
+	if obj, err := builder.GetObject(item); err == nil {
+		if e, ok := obj.(*gtk.Viewport); ok {
+			return e
+		}
+		log.Fatalf("%v is not a gtk.Viewport", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
+	}
 	return nil
 }

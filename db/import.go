@@ -1,134 +1,185 @@
 package db
 
 import (
-	"database/sql"
+	"encoding/csv"
 	"fmt"
-	"net/http"
-
-	// "sync"
-
-	"io/ioutil"
-	"log"
+	"io"
+	"os"
 	"strings"
 
+	"log"
 	"strconv"
-	// "github.com/gotk3/gotk3/glib"
-	// "github.com/gotk3/gotk3/gtk"
+
+	"github.com/gotk3/gotk3/gtk"
 )
 
-// ImportFCC downloads and imports the fcc.gov MW station data
-func ImportFCC() {
+// ImportMWList downloads and imports the mwlist.gov MW station data
+func ImportMWList() {
 
 	// dialog := gtk.MessageDialogNew(win, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_INFO, gtk.BUTTONS_CLOSE, "%s", "")
-	// dialog.SetTitle("Importing FCC data")
+	// dialog.SetTitle("Importing MWList data")
 	// dialog.SetSizeRequest(300, 200)
 	// box, _ := dialog.GetMessageArea()
 	// btn, _ := dialog.GetWidgetForResponse(gtk.RESPONSE_CLOSE)
 	// btn.SetSensitive(false)
-	// label, _ := gtk.LabelNew("Downloading FCC data...\n")
+	// label, _ := gtk.LabelNew("Downloading MWList data...\n")
 	// box.Add(label)
 	// btn.Connect("clicked", func() {
 	// 	dialog.Destroy()
 	// })
 	// glib.IdleAdd(dialog.ShowNow)
 
-	var res *http.Response
-	res, err := http.Get("https://transition.fcc.gov/fcc-bin/amq?call=&arn=&state=&city=&freq=530&fre2=1700&type=0&facid=&class=&list=4&NextTab=Results+to+Next+Page%2FTab&dist=10000&dlat2=50&mlat2=30&slat2=&NS=N&dlon2=104&mlon2=30&slon2=&EW=W&size=9")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	defer res.Body.Close()
-	robots, err := ioutil.ReadAll(res.Body)
-	if err != nil {
-		log.Fatal(err)
-	}
-	// txt, _ := label.GetText()
-	// label.SetText(txt + "Importing FCC Data...\n")
-	// glib.IdleAdd(dialog.ShowNow)
-	rows := strings.Split(string(robots), "\n")
+	// var res *http.Response
+	// res, err := http.Get("https://transition.fcc.gov/fcc-bin/amq?call=&arn=&state=&city=&freq=530&fre2=1700&type=0&facid=&class=&list=4&NextTab=Results+to+Next+Page%2FTab&dist=10000&dlat2=50&mlat2=30&slat2=&NS=N&dlon2=104&mlon2=30&slon2=&EW=W&size=9")
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+	// defer res.Body.Close()
+	// robots, err := ioutil.ReadAll(res.Body)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// rows := strings.Split(string(robots), "\n")
+
 	// load from file code
-	// fmt.Printf("%s", string(robots))
-	// f, err := os.Open("AM Query Results -- Audio Division (FCC) USA.txt")
-	// if err != nil {
-	// 	log.Fatalln(err.Error())
-	// }
-	// defer f.Close()
-	// buf := bytes.NewBuffer(make([]byte, 0))
-	// if _, err = buf.ReadFrom(f); err != nil {
-	// 	log.Fatalln(err.Error())
-	// }
-	// doc := string(buf.Bytes())
-	// if err != nil {
-	// 	log.Fatalln(err.Error())
-	// }
-	// _ = doc
-	// links := doc.Find("pre", "class", "listtext").FindAll("span")
-	for _, row := range rows {
-		if len(row) < 2 {
+
+	dialog, _ := gtk.FileChooserDialogNewWith2Buttons("Select Import File",
+		nil, gtk.FILE_CHOOSER_ACTION_OPEN,
+		"Cancel", gtk.RESPONSE_CANCEL,
+		"Open", gtk.RESPONSE_ACCEPT)
+
+	result := dialog.Run()
+	if result == gtk.RESPONSE_CANCEL {
+		dialog.Close()
+		return
+	}
+
+	filename := dialog.GetFilename()
+	dialog.Close()
+
+	f, err := os.Open(filename)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	defer f.Close()
+
+	createMWListTable()
+	truncateTable("mwlist")
+
+	r := csv.NewReader(f)
+	r.Comma = ';'
+	r.FieldsPerRecord = -1
+	startLine := false
+	for {
+		row, err := r.Read()
+		if err == io.EOF {
 			break
 		}
-		columns := strings.Split(row, "|")
-		station := strings.Trim(columns[1], " ")
-		if callExists(station) == true {
-			pattern := formatPattern(station, columns[5], columns[6])
-			power := formatPower(station, strings.Trim((columns[14])[0:5], " "), columns[6])
-
-			s, err := sqldb.Prepare(fmt.Sprintf("update fcc set pattern = ?, power = ? where station = ?"))
-			_, err = s.Exec(pattern, power, station)
-			if err != nil {
-				log.Fatalln(err.Error())
+		if len(row) == 0 {
+			continue
+		}
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+		if startLine == false {
+			if strings.Contains(row[0], "======") {
+				startLine = true
 			}
+			continue
+		}
+
+		freq := row[0]
+		country := row[1]
+		language := row[2]
+		station := row[3]
+		address := row[5]
+		power := row[9]
+		city, state, powerDay, powerNight := parseAddress(address, power)
+
+		latitude, _ := strconv.ParseFloat(row[6], 64)
+		longitude, _ := strconv.ParseFloat(row[7], 64)
+
+		distance, _ := strconv.Atoi(row[11])
+		bearing, _ := strconv.Atoi(row[12])
+
+		if !(country == "USA" || country == "CAN" || country == "MEX") {
+			continue
+		}
+		f, _ := strconv.Atoi(freq)
+		if f < 530 {
+			continue
+		}
+		if f > 1710 {
+			break
+		}
+
+		if callExists(station) {
+			ss := strings.FieldsFunc(row[5], func(r rune) bool {
+				if r == '(' || r == ')' {
+					return true
+				}
+				return false
+			})
+			if len(ss) > 2 {
+				if ss[1] == "D" { //set day power
+					setPower(station, "power_day", power)
+				}
+				if ss[1] == "N" { //set night power
+					setPower(station, "power_night", power)
+				}
+			}
+
 		} else {
-			freq := strings.Trim(columns[2][0:5], " ")
-			city := strings.Trim(columns[10], " ")
-			stateprov := strings.Trim(columns[11], " ")
-			country := strings.Trim(columns[12], " ")
-			class := strings.Trim(columns[7], " ")
-
-			latHour, _ := strconv.Atoi(strings.Trim(columns[20], " "))
-			latMin, _ := strconv.Atoi(strings.Trim(columns[21], " "))
-			latSec, _ := strconv.Atoi(columns[22][0:2])
-			longHour, _ := strconv.Atoi(strings.Trim(columns[24], " "))
-			longMin, _ := strconv.Atoi(strings.Trim(columns[25], " "))
-			longSec, _ := strconv.Atoi(columns[26][0:2])
-
-			latitude := float64(latHour) + (float64(latMin)/60.0) + (float64(latSec)/3600.0)
-			longitude := (float64(longHour) + (float64(longMin)/60.0) + (float64(longSec)/3600.0)) * -1.0
-
-			distance, _ := strconv.ParseFloat(strings.Trim(columns[28], " km"), 64)
-			bearing, _ := strconv.ParseFloat(strings.Trim(columns[30], " deg"), 64)
-			
-			var power, pattern string
-			power = formatPower(power, strings.Trim((columns[14])[0:5], " "), columns[6])
-			pattern = formatPattern(pattern, strings.Trim(columns[5], " "), columns[6])
-
-			err = insertStation(sqldb, station, freq, city, stateprov, country, power, pattern, class,
+			err = insertStation(station, freq, city, state, country, language, powerDay, powerNight,
 				latitude, longitude, distance, bearing)
 			if err != nil {
-				log.Println(err)
+				log.Println(err.Error())
 			}
 		}
 	}
-	// txt, _ = label.GetText()
-	// label.SetText(txt + "Completed.")
-	// btn.SetSensitive(true)
-	// glib.IdleAdd(dialog.ShowNow)
-	//	dialog.Destroy()
 }
 
-func insertStation(db *sql.DB, station string, frequency string, city string, prov string,
-	country string, power string, pattern string, ch string,
-	latitude, longitude, distance, bearing float64) error {
+func parseAddress(address, power string) (city, state, powerDay, powerNight string) {
+	ss := strings.FieldsFunc(address, func(r rune) bool {
+		if r == '(' || r == ')' {
+			return true
+		}
+		return false
+	})
+
+	if len(ss) > 1 {
+		city = ss[0][:len(ss[0])-1]
+		state = ss[len(ss)-1]
+	} else {
+		city = address
+		state = ""
+	}
+	if len(ss) > 2 { // has day/night
+		if ss[1] == "D" {
+			powerDay = power
+			powerNight = "off"
+		} else {
+			powerNight = power
+		}
+	} else {
+		powerDay = power
+		powerNight = ""
+	}
+	return
+}
+
+func insertStation(station, frequency, city, state, country, language string,
+	powerDay, powerNight string, latitude, longitude float64, distance, bearing int) error {
 
 	log.Printf("Inserting station record ... %v %s\n", frequency, station)
-	insertStationSQL := `INSERT INTO fcc(station, frequency, city, prov, country, power, pattern, class, 
+	q := `INSERT INTO mwlist(station, frequency, city, state, country, language, power_day, power_night, 
 										 latitude, longitude, distance, bearing) 
 							VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	statement, err := db.Prepare(insertStationSQL)
+	stmt, err := sqldb.Prepare(q)
 	if err != nil {
 		return err
 	}
-	if _, err = statement.Exec(station, frequency, city, prov, country, power, pattern, ch,
+	if _, err = stmt.Exec(station, frequency, city, state, country, language, powerDay, powerNight,
 		latitude, longitude, distance, bearing); err != nil {
 		return err
 	}
@@ -136,7 +187,7 @@ func insertStation(db *sql.DB, station string, frequency string, city string, pr
 }
 
 func callExists(station string) bool {
-	sql := fmt.Sprintf("select count(*) from fcc where station = '%s'", station)
+	sql := fmt.Sprintf("select count(*) from mwlist where station = '%s'", station)
 	row, err := sqldb.Query(sql)
 	if err != nil {
 		log.Println(err.Error())
@@ -152,81 +203,82 @@ func callExists(station string) bool {
 	}
 	return false
 }
-
-func getCurrentPower(station string) string {
-	sql := fmt.Sprintf("select power from fcc where station = '%s'", station)
-	row, err := sqldb.Query(sql)
+func setPower(station, field, power string) {
+	q := fmt.Sprintf(`update mwlist set %s = "%s" where station = "%s"`, field, power, station)
+	stmt, err := sqldb.Prepare(q)
 	if err != nil {
 		log.Println(err.Error())
+		return
 	}
-	defer row.Close()
-
-	var power string
-	row.Next()
-	row.Scan(&power)
-
-	return power
-}
-func getCurrentPattern(station string) string {
-	sql := fmt.Sprintf("select pattern from fcc where station = '%s'", station)
-	row, err := sqldb.Query(sql)
-	if err != nil {
-		log.Println(err.Error())
-	}
-	defer row.Close()
-
-	var pattern string
-	row.Next()
-	row.Scan(&pattern)
-
-	return pattern
+	stmt.Exec(q)
 }
 
-func formatPattern(station string, newPat string, opTime string) string {
-	pattern := getCurrentPattern(station)
+// func getCurrentPower(station string) string {
+// 	sql := fmt.Sprintf("select power from mwlist where station = '%s'", station)
+// 	row, err := sqldb.Query(sql)
+// 	if err != nil {
+// 		log.Println(err.Error())
+// 	}
+// 	defer row.Close()
+// 	var power string
+// 	row.Next()
+// 	row.Scan(&power)
+// }
 
-	p := strings.Split(pattern, "/")
-	l := len(p)
+// func getCurrentPattern(station string) string {
+// 	sql := fmt.Sprintf("select pattern from mwlist where station = '%s'", station)
+// 	row, err := sqldb.Query(sql)
+// 	if err != nil {
+// 		log.Println(err.Error())
+// 	}
+// 	defer row.Close()
+// 	var pattern string
+// 	row.Next()
+// 	row.Scan(&pattern)
+// 	return pattern
+// }
 
-	switch strings.Trim(opTime, " ") {
-	case "Daytime":
-		pattern = newPat
-		if l > 1 {
-			pattern += "/" + p[1]
-		} else {
-		}
-	case "Unlimited":
-		pattern = p[0]
-	case "Nighttime":
-		if l > 0 {
-			pattern = p[0] + "/" + newPat
-		} else {
-			pattern = "/" + newPat
-		}
-	}
-	return pattern
-}
-func formatPower(station string, newPow string, opTime string) string {
+// func formatPattern(station string, newPat string, opTime string) string {
+// 	pattern := getCurrentPattern(station)
+// 	p := strings.Split(pattern, "/")
+// 	l := len(p)
+// 	switch strings.Trim(opTime, " ") {
+// 	case "Daytime":
+// 		pattern = newPat
+// 		if l > 1 {
+// 			pattern += "/" + p[1]
+// 		} else {
+// 		}
+// 	case "Unlimited":
+// 		pattern = p[0]
+// 	case "Nighttime":
+// 		if l > 0 {
+// 			pattern = p[0] + "/" + newPat
+// 		} else {
+// 			pattern = "/" + newPat
+// 		}
+// 	}
+// 	return pattern
+// }
 
-	power := getCurrentPower(station)
-
-	p := strings.Split(power, "/")
-	l := len(p)
-
-	switch strings.Trim(opTime, " ") {
-	case "Daytime":
-		power = newPow
-		if l > 1 {
-			power += "/" + p[1]
-		}
-	case "Unlimited":
-		power = newPow + " U"
-	case "Nighttime":
-		if l > 0 {
-			power = p[0] + "/" + newPow
-		} else {
-			power = "/" + newPow
-		}
-	}
-	return power
-}
+// func formatPower(station string, newPow string, opTime string) string {
+// 	power := getCurrentPower(station)
+// 	p := strings.Split(power, "/")
+// 	l := len(p)
+// 	switch strings.Trim(opTime, " ") {
+// 	case "Daytime":
+// 		power = newPow
+// 		if l > 1 {
+// 			power += "/" + p[1]
+// 		}
+// 	case "Unlimited":
+// 		power = newPow + " U"
+// 	case "Nighttime":
+// 		if l > 0 {
+// 			power = p[0] + "/" + newPow
+// 		} else {
+// 			power = "/" + newPow
+// 		}
+// 	}
+// 	return power
+// }

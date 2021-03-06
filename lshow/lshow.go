@@ -14,7 +14,7 @@ const (
 	colFreq = iota
 	colCall
 	colCity
-	colProv
+	colState
 	colCountry
 	colPower
 	colPattern
@@ -26,7 +26,7 @@ func LoadLS() {
 
 	ls := ui.GetListStore("liststore")
 
-	rows := db.GetAllFCC()
+	rows := db.GetAllMWList()
 	defer rows.Close()
 
 	for rows.Next() {
@@ -34,12 +34,12 @@ func LoadLS() {
 		var call string
 		var freq int
 		var city string
-		var prov string
+		var state string
 		var country string
 		var power string
 		var pattern string
 		var class string
-		rows.Scan(&call, &freq, &city, &prov, &country, &power, &pattern, &class)
+		rows.Scan(&call, &freq, &city, &state, &country, &power, &pattern, &class)
 
 		i := ls.Append()
 		// Set the contents of the tree store row that the iterator represents
@@ -53,7 +53,7 @@ func LoadLS() {
 		if err := ls.SetValue(i, colCity, city); err != nil {
 			log.Fatal("Unable set value:", err)
 		}
-		if err := ls.SetValue(i, colProv, prov); err != nil {
+		if err := ls.SetValue(i, colState, state); err != nil {
 			log.Fatal("Unable set value:", err)
 		}
 		if err := ls.SetValue(i, colCountry, country); err != nil {

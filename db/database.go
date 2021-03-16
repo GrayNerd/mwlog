@@ -35,15 +35,15 @@ type Channel struct {
 	Nighttime string
 }
 
-// LogEntry is the structure of the logging table
-type LogEntry struct {
+// LogRecord is the structure of the logging table
+type LogRecord struct {
 	ID        int
 	Dt        string
 	Tm        string
 	Station   string
 	Frequency string
 	City      string
-	State      string
+	State     string
 	Cnty      string
 	Signal    string
 	Format    string
@@ -93,8 +93,7 @@ func GetAllMWList() *sql.Rows {
 
 // GetMWListByCall retrieves the mwlist data for a specified station
 func GetMWListByCall(station string) *sql.Rows {
-	readSQL := fmt.Sprintf(`SELECT id, station, frequency, city, state, country, 
-								   latitude, longitude, distance, bearing
+	readSQL := fmt.Sprintf(`SELECT id, station, frequency, city, state, country, latitude, longitude, distance, bearing
 							  FROM mwlist 
 							  WHERE station = upper("%v");`, station)
 	rows, err := sqldb.Query(readSQL)
@@ -105,16 +104,9 @@ func GetMWListByCall(station string) *sql.Rows {
 }
 
 // AddLogging saves a log entry to the loggings table
-func AddLogging(l *LogEntry) int {
-	// s, err := sqldb.Prepare(`Insert into loggings (date, time, station, frequency, city, state, 
-	// 							 country, signal, format, remarks, receiver, antenna, latitude, longitude, distance, bearing, sunrise, sunset) 
-	// 							 values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
-	// if err != nil {
-	// 	log.Println(err.Error())
-	// }
-	// defer s.Close()
-	_, err := sqldb.Exec(`Insert into loggings (date, time, station, frequency, city, state, 
-								 country, signal, format, remarks, receiver, antenna, latitude, longitude, distance, bearing, sunrise, sunset) 
+func AddLogging(l *LogRecord) int {
+	_, err := sqldb.Exec(`Insert into loggings (date, time, station, frequency, city, state, country, 
+		signal, format, remarks, receiver, antenna, latitude, longitude, distance, bearing, sunrise, sunset) 
 								 values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
 								 l.Dt, l.Tm, l.Station, l.Frequency, l.City, l.State, l.Cnty, l.Signal, l.Format, l.Remarks, l.Rcvr, l.Ant, l.Latitude, l.Longitude, l.Distance, l.Bearing, l.Sunrise, l.Sunset)
 	if err != nil {
@@ -134,7 +126,7 @@ func AddLogging(l *LogEntry) int {
 }
 
 // UpdateLogging updates an existing logging record
-func UpdateLogging(l *LogEntry) {
+func UpdateLogging(l *LogRecord) {
 	s, err := sqldb.Prepare(`update loggings 
 	set date = ?, time = ?, station = ?, frequency = ?, city = ?, state = ?, 
 									country = ?, signal = ?, format = ?, remarks = ?, receiver = ?, antenna = ?,
@@ -194,8 +186,8 @@ func DeleteLogging(id uint) {
 }
 
 // GetLoggingByID retrieves a logging by ID
-func GetLoggingByID(id uint) (*LogEntry, error) {
-	var l LogEntry
+func GetLoggingByID(id uint) (*LogRecord, error) {
+	var l LogRecord
 
 	q := `select id, date, time, station, frequency, city, state, country, signal, format, remarks, 
 			receiver, antenna, latitude, longitude, distance, bearing, sunrise, sunset

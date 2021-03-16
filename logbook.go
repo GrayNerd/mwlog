@@ -40,11 +40,12 @@ func loadLogbook() {
 }
 
 func onLogbookTreeKeyPressEvent(tv *gtk.TreeView, e *gdk.Event) bool {
-	ek := gdk.EventKey{e} //nolint
+	ek := gdk.EventKey{e} 
 	if ek.KeyVal() == gdk.KEY_Delete {
 		s, err := tv.GetSelection()
 		if err != nil {
 			log.Println(err.Error())
+			return false
 		}
 		model, iter, ok := s.GetSelected()
 		if !ok {
@@ -56,6 +57,7 @@ func onLogbookTreeKeyPressEvent(tv *gtk.TreeView, e *gdk.Event) bool {
 		id, err := v.GoValue()
 		if err != nil {
 			log.Println(err.Error())
+			return false
 		}
 
 		dialog := gtk.MessageDialogNew(nil, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL, "%s", "\nDelete the logging?")
@@ -72,29 +74,7 @@ func onLogbookTreeKeyPressEvent(tv *gtk.TreeView, e *gdk.Event) bool {
 	return true
 }
 
-func onMenuEditLoggingClicked() bool {
-	tv := ui.GetTreeView("logbook_tree")
-	s, err := tv.GetSelection()
-	if err != nil {
-		log.Println(err.Error())
-	}
-	model, iter, ok := s.GetSelected()
-	if !ok {
-		log.Println("Unable to GetSelected in onLogbookTreeRowActivated")
-		return false
-	}
-
-	v, _ := model.(*gtk.TreeModel).GetValue(iter, 0)
-	id, err := v.GoValue()
-	if err != nil {
-		log.Println(err.Error())
-	}
-
-	openLogging(id.(uint))
-	return false
-}
-
-func logbookUpdateRow(new bool, logging *db.LogEntry) {
+func logbookUpdateRow(new bool, logging *db.LogRecord) {
 	tv := ui.GetTreeView("logbook_tree")
 	ls := ui.GetListStore("logbook_store")
 

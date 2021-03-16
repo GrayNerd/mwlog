@@ -43,6 +43,7 @@ func main() {
 		var ch chanTab   //nolint
 		var mt mapsTab   //nolint
 		var lt mwListTab //nolint
+		var le logging
 		// _ = ch
 		notebookSwitcher := func(pn int) {
 			switch pn {
@@ -71,17 +72,18 @@ func main() {
 			"on_display_mwlist_activate": func() { lshow.LoadLS() },
 
 			// *** Logging Window ***
-			"on_logging_date_focus_out_event":    func(e *gtk.Entry) { validateDate(e) },
-			"on_logging_time_focus_out_event":    func(e *gtk.Entry) { validateTime(e) },
-			"on_logging_station_focus_out_event": func(e *gtk.Entry) { validateCall(e) },e			"on_logging_cancel_button_clicked":   func(_ *gtk.Button) { loggingWindow.Close() },
+			"on_logging_date_focus_out_event":    func(e *gtk.Entry) { le.validateDate(e) },
+			"on_logging_time_focus_out_event":    func(e *gtk.Entry) { le.validateTime(e) },
+			"on_logging_station_focus_out_event": func(e *gtk.Entry) { le.validateCall(e) },
+			"on_logging_cancel_button_clicked":   func(_ *gtk.Button) { le.loggingWindow.Close() },
 
 			"on_notebook_switch_page": func(_ *gtk.Notebook, _ *gtk.Widget, pn int) { notebookSwitcher(pn) },
 			// "on_logbook_tree_row_activated":    func(tv *gtk.TreeView) { onLogbookTreeRowActivated(tv) },
 
 			// *** Menu Items ***
 			"on_menu_logbook_clicked":      func() { showLogbook() },
-			"on_menu_add_logging_clicked":  func() { openLogging(0) },
-			"on_menu_edit_logging_clicked": func() { onMenuEditLoggingClicked() },
+			"on_menu_add_logging_clicked":  func() { le.open(0) },
+			"on_menu_edit_logging_clicked": func() { le.edit() },
 
 			// *** Channel Tab ***
 			"on_chan_freq_sel_changed": func(ts *gtk.TreeSelection) { ch.loadChannel(ts) },
@@ -128,6 +130,7 @@ func loadCSS() {
 	}
 	gtk.AddProviderForScreen(screen, cssProv, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 }
+
 func displayRow(ts *gtk.TreeSelection) {
 	model, iter, ok := ts.GetSelected()
 	if ok {
@@ -139,20 +142,3 @@ func displayRow(ts *gtk.TreeSelection) {
 		tv.ScrollToCell(path, nil, false, 0, 0)
 	}
 }
-
-// func notebookSwitcher(n *gtk.Notebook, p *gtk.Widget, pn int) {
-// 	_ = n
-// 	_ = p
-// 	switch pn {
-// 	case 0: // logbook
-// 	case 1: // channels
-// 	case 2: // mw list
-// 		log.Println("switching to mwList tab")
-// 		var lt mwListTab
-// 		lt.showMWListTab()
-// 	case 3: // maps
-// 		log.Println("switching to maps tab")
-// 		var mt mapsTab
-// 		mt.showMapsTab()
-// 	}
-// }

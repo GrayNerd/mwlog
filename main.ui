@@ -383,11 +383,14 @@ Author: Ken Boyd (Greynerd on github.com)
                     <child>
                       <object class="GtkCellRendererText"/>
                       <attributes>
-                        <attribute name="text">7</attribute>
+                        <attribute name="text">8</attribute>
                       </attributes>
                     </child>
                   </object>
                 </child>
+                <style>
+                  <class name="logbook"/>
+                </style>
               </object>
             </child>
           </object>
@@ -1120,6 +1123,7 @@ Author: Ken Boyd (Greynerd on github.com)
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
+                <property name="halign">end</property>
                 <property name="label" translatable="yes">Station:</property>
                 <property name="xalign">0.949999988079071</property>
               </object>

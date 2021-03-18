@@ -2,3 +2,5 @@
 mwlog
 *.ui~
 .*
+__debug_bin
+main.ui~

@@ -21,10 +21,10 @@ func loadMWListData(station string) error {
 		ui.GetEntry("logging_city").SetText(city)
 		ui.GetEntry("logging_state").SetText(state)
 		ui.GetEntry("logging_country").SetText(cnty)
-		ui.GetLabel("logging_latitude").SetText(fmt.Sprintf("%.3f", latitude))
-		ui.GetLabel("logging_longitude").SetText(fmt.Sprintf("%.3f", longitude))
-		ui.GetLabel("logging_distance").SetText(fmt.Sprintf("%.0f", distance))
-		ui.GetLabel("logging_bearing").SetText(fmt.Sprintf("%.0f", bearing))
+		ui.GetEntry("logging_latitude").SetText(fmt.Sprintf("%.3f", latitude))
+		ui.GetEntry("logging_longitude").SetText(fmt.Sprintf("%.3f", longitude))
+		ui.GetEntry("logging_distance").SetText(fmt.Sprintf("%.0f", distance))
+		ui.GetEntry("logging_bearing").SetText(fmt.Sprintf("%.0f", bearing))
 	} else {
 		return fmt.Errorf("Station data not found")
 	}

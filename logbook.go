@@ -25,6 +25,7 @@ func loadLogbook() {
 		log.Println(err.Error())
 	}
 	defer rows.Close()
+	
 	var id uint
 	var dt, tm, station, frequency, city, state, country, signal, format, remarks string
 	for rows.Next() {

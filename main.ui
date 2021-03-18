@@ -1377,13 +1377,6 @@ Author: Ken Boyd (Greynerd on github.com)
                     <attribute name="text">1</attribute>
                   </attributes>
                 </child>
-                <child internal-child="entry">
-                  <object class="GtkEntry">
-                    <property name="name">logging_antenna</property>
-                    <property name="can-focus">False</property>
-                    <property name="editable">False</property>
-                  </object>
-                </child>
               </object>
               <packing>
                 <property name="left-attach">1</property>
@@ -1406,15 +1399,6 @@ Author: Ken Boyd (Greynerd on github.com)
                   <attributes>
                     <attribute name="text">1</attribute>
                   </attributes>
-                </child>
-                <child internal-child="entry">
-                  <object class="GtkEntry">
-                    <property name="name">logging_receiver</property>
-                    <property name="can-focus">False</property>
-                    <style>
-                      <class name="logging"/>
-                    </style>
-                  </object>
                 </child>
               </object>
               <packing>
@@ -1449,110 +1433,6 @@ Author: Ken Boyd (Greynerd on github.com)
               </packing>
             </child>
             <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can-focus">False</property>
-                <property name="hexpand">True</property>
-                <property name="label" translatable="yes">Sunrise:</property>
-                <property name="xalign">1</property>
-              </object>
-              <packing>
-                <property name="left-attach">2</property>
-                <property name="top-attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="logging_sunrise">
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">0644</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left-attach">3</property>
-                <property name="top-attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can-focus">False</property>
-                <property name="hexpand">True</property>
-                <property name="label" translatable="yes">Sunset: </property>
-                <property name="xalign">1</property>
-              </object>
-              <packing>
-                <property name="left-attach">4</property>
-                <property name="top-attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="logging_sunset">
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can-focus">False</property>
-                <property name="halign">start</property>
-                <property name="label" translatable="yes">2237</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left-attach">5</property>
-                <property name="top-attach">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Latitude:</property>
-                <property name="xalign">1</property>
-              </object>
-              <packing>
-                <property name="left-attach">2</property>
-                <property name="top-attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="logging_latitude">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">50.5</property>
-                <property name="width-chars">2</property>
-                <property name="xalign">0.10000000149011612</property>
-              </object>
-              <packing>
-                <property name="left-attach">3</property>
-                <property name="top-attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Longitude:</property>
-              </object>
-              <packing>
-                <property name="left-attach">4</property>
-                <property name="top-attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="logging_longitude">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="halign">start</property>
-                <property name="label" translatable="yes">-104.5</property>
-                <property name="xalign">0.10000000149011612</property>
-              </object>
-              <packing>
-                <property name="left-attach">5</property>
-                <property name="top-attach">2</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkEntry" id="logging_date">
                 <property name="name">logging_date</property>
                 <property name="visible">True</property>
@@ -1572,57 +1452,6 @@ Author: Ken Boyd (Greynerd on github.com)
               </packing>
             </child>
             <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Distance (km):</property>
-                <property name="xalign">0.9800000190734863</property>
-              </object>
-              <packing>
-                <property name="left-attach">2</property>
-                <property name="top-attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="logging_distance">
-                <property name="visible">True</property>
-                <property name="sensitive">False</property>
-                <property name="can-focus">False</property>
-                <property name="halign">start</property>
-                <property name="label" translatable="yes">500</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left-attach">3</property>
-                <property name="top-attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="label" translatable="yes">Bearing:</property>
-                <property name="xalign">1</property>
-              </object>
-              <packing>
-                <property name="left-attach">4</property>
-                <property name="top-attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="logging_bearing">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="halign">start</property>
-                <property name="label" translatable="yes">180</property>
-                <property name="xalign">0</property>
-              </object>
-              <packing>
-                <property name="left-attach">5</property>
-                <property name="top-attach">3</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkComboBox">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
@@ -1632,12 +1461,6 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="has-entry">True</property>
                 <property name="entry-text-column">0</property>
                 <property name="id-column">0</property>
-                <child internal-child="entry">
-                  <object class="GtkEntry" id="logging_format">
-                    <property name="name">logging_format</property>
-                    <property name="can-focus">False</property>
-                  </object>
-                </child>
                 <style>
                   <class name="logging"/>
                 </style>
@@ -1645,6 +1468,196 @@ Author: Ken Boyd (Greynerd on github.com)
               <packing>
                 <property name="left-attach">1</property>
                 <property name="top-attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <!-- n-columns=4 n-rows=3 -->
+              <object class="GtkGrid">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can-focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="label" translatable="yes">Sunrise:</property>
+                    <property name="xalign">1</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Latitude:</property>
+                    <property name="xalign">1</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Distance (km):</property>
+                    <property name="xalign">0.9800000190734863</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Bearing:</property>
+                    <property name="xalign">1</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">2</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can-focus">False</property>
+                    <property name="label" translatable="yes">Longitude:</property>
+                    <property name="xalign">1</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">2</property>
+                    <property name="top-attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can-focus">False</property>
+                    <property name="hexpand">True</property>
+                    <property name="label" translatable="yes">Sunset: </property>
+                    <property name="xalign">1</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">2</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="logging_sunrise">
+                    <property name="name">logging_sunrise</property>
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can-focus">False</property>
+                    <property name="editable">False</property>
+                    <property name="max-length">10</property>
+                    <property name="has-frame">False</property>
+                    <property name="width-chars">10</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="logging_latitude">
+                    <property name="name">logging_latitude</property>
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can-focus">False</property>
+                    <property name="editable">False</property>
+                    <property name="max-length">10</property>
+                    <property name="has-frame">False</property>
+                    <property name="width-chars">10</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="logging_sunset">
+                    <property name="name">logging_sunset</property>
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can-focus">False</property>
+                    <property name="editable">False</property>
+                    <property name="max-length">10</property>
+                    <property name="has-frame">False</property>
+                    <property name="width-chars">10</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">3</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="logging_longitude">
+                    <property name="name">logging_longitude</property>
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can-focus">False</property>
+                    <property name="editable">False</property>
+                    <property name="max-length">10</property>
+                    <property name="has-frame">False</property>
+                    <property name="width-chars">10</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">3</property>
+                    <property name="top-attach">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="logging_bearing">
+                    <property name="name">logging_bearing</property>
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can-focus">False</property>
+                    <property name="editable">False</property>
+                    <property name="max-length">10</property>
+                    <property name="has-frame">False</property>
+                    <property name="width-chars">10</property>
+                    <property name="max-width-chars">0</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">3</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="logging_distance">
+                    <property name="name">logging_distance</property>
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can-focus">False</property>
+                    <property name="editable">False</property>
+                    <property name="max-length">10</property>
+                    <property name="has-frame">False</property>
+                    <property name="width-chars">10</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">2</property>
+                <property name="top-attach">1</property>
+                <property name="width">4</property>
+                <property name="height">3</property>
               </packing>
             </child>
             <child>
@@ -1723,7 +1736,7 @@ Author: Ken Boyd (Greynerd on github.com)
             <property name="halign">end</property>
             <property name="spacing">1</property>
             <property name="homogeneous">True</property>
-            <property name="baseline-position">top</property>
+            <property name="baseline-position">bottom</property>
             <child>
               <object class="GtkButton" id="logging_cancel_button">
                 <property name="label" translatable="yes">Cancel</property>
@@ -1753,6 +1766,7 @@ Author: Ken Boyd (Greynerd on github.com)
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
+                <property name="pack-type">end</property>
                 <property name="position">1</property>
               </packing>
             </child>
@@ -1761,6 +1775,7 @@ Author: Ken Boyd (Greynerd on github.com)
             <property name="expand">False</property>
             <property name="fill">False</property>
             <property name="padding">4</property>
+            <property name="pack-type">end</property>
             <property name="position">1</property>
           </packing>
         </child>

@@ -75,7 +75,7 @@ func main() {
 			"on_logging_date_focus_out_event":    func(e *gtk.Entry) { le.validateDate(e) },
 			"on_logging_time_focus_out_event":    func(e *gtk.Entry) { le.validateTime(e) },
 			"on_logging_station_focus_out_event": func(e *gtk.Entry) { le.validateCall(e) },
-			"on_logging_cancel_button_clicked":   func(_ *gtk.Button) { le.loggingWindow.Close() },
+			"on_logging_cancel_button_clicked":   func(_ *gtk.Button) { le.window.Close() },
 
 			"on_notebook_switch_page": func(_ *gtk.Notebook, _ *gtk.Widget, pn int) { notebookSwitcher(pn) },
 			// "on_logbook_tree_row_activated":    func(tv *gtk.TreeView) { onLogbookTreeRowActivated(tv) },

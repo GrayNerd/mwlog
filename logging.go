@@ -21,40 +21,40 @@ import (
 
 //var oneAndDone bool = false
 type logging struct {
-	loggingWindow *gtk.Window
+	window *gtk.Window
 	cancel        bool
 }
 
 func (l *logging) open(id uint) {
-	if l.loggingWindow == nil {
-		l.loggingWindow = ui.GetWindow("logging_window")
-		l.loggingWindow.HideOnDelete()
+	if l.window == nil {
+		l.window = ui.GetWindow("logging_window")
+		l.window.HideOnDelete()
 	}
-	l.loggingWindow.ShowAll()
+	l.window.ShowAll()
 
 	btn := ui.GetButton("logging_save_button")
 
 	var hdl glib.SignalHandle
 	if id == 0 {
-		l.loggingWindow.SetTitle("Add Logging")
+		l.window.SetTitle("Add Logging")
 		btn.SetLabel("Add")
 		hdl, _ = btn.Connect("clicked", func() {
-			l.save(l.loggingWindow, 0)
+			l.save(l.window, 0)
 			btn.HandlerDisconnect(hdl)
 		})
 		l.clear()
 		l.prefill()
 	} else {
-		l.loggingWindow.SetTitle("Edit Logging")
+		l.window.SetTitle("Edit Logging")
 		btn.SetLabel("Update")
 		i := id
 		hdl, _ = btn.Connect("clicked", func(btn *gtk.Button) {
-			l.save(l.loggingWindow, int(i))
+			l.save(l.window, int(i))
 			btn.HandlerDisconnect(hdl)
 		})
 		l.load(id)
 	}
-	l.loggingWindow.ShowAll()
+	l.window.ShowAll()
 }
 func (l *logging) edit() bool {
 	tv := ui.GetTreeView("logbook_tree")
@@ -100,14 +100,15 @@ func (l *logging) clear() {
 	ui.GetEntry("logging_signal").SetText("")
 	ui.GetEntry("logging_format").SetText("")
 	ui.GetTextBuffer("logging_remarks_buffer").SetText("")
+	// ToDo: setup configuration for default receiver and antenna
 	ui.GetComboBox("logging_receiver").SetActive(0)
 	ui.GetComboBox("logging_antenna").SetActive(0)
 
-	ui.GetLabel("logging_latitude").SetText("")
-	ui.GetLabel("logging_longitude").SetText("")
+	ui.GetEntry("logging_latitude").SetText("")
+	ui.GetEntry("logging_longitude").SetText("")
 
-	ui.GetLabel("logging_distance").SetText("")
-	ui.GetLabel("logging_bearing").SetText("")
+	ui.GetEntry("logging_distance").SetText("")
+	ui.GetEntry("logging_bearing").SetText("")
 
 	ui.GetEntry("logging_station").GrabFocus()
 }
@@ -121,7 +122,7 @@ func (l *logging) validateDate(c *gtk.Entry) bool {
 	if len(dt) > 0 {
 		d, err := dateparse.ParseLocal(dt)
 		if err != nil {
-			dlg := gtk.MessageDialogNew(l.loggingWindow, gtk.DIALOG_DESTROY_WITH_PARENT,
+			dlg := gtk.MessageDialogNew(l.window, gtk.DIALOG_DESTROY_WITH_PARENT,
 				gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, err.Error())
 			dlg.Run()
 			dlg.Destroy()
@@ -151,7 +152,7 @@ func (l *logging) validateTime(c *gtk.Entry) bool {
 		}
 	}
 
-	dlg := gtk.MessageDialogNew(l.loggingWindow, gtk.DIALOG_DESTROY_WITH_PARENT,
+	dlg := gtk.MessageDialogNew(l.window, gtk.DIALOG_DESTROY_WITH_PARENT,
 		gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, "Invalid time, must be between 0000 and 2359")
 	dlg.Run()
 	dlg.Destroy()
@@ -176,7 +177,7 @@ func (l *logging) validateCall(c *gtk.Entry) bool {
 		return gdk.GDK_EVENT_PROPAGATE
 	}
 
-	d := gtk.MessageDialogNew(l.loggingWindow, gtk.DIALOG_DESTROY_WITH_PARENT,
+	d := gtk.MessageDialogNew(l.window, gtk.DIALOG_DESTROY_WITH_PARENT,
 		gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, "Station not found in MWList database")
 	d.Run()
 	d.Destroy()
@@ -186,12 +187,12 @@ func (l *logging) validateCall(c *gtk.Entry) bool {
 	ui.GetEntry("logging_city").SetText("")
 	ui.GetEntry("logging_state").SetText("")
 	ui.GetEntry("logging_country").SetText("")
-	ui.GetLabel("logging_latitude").SetLabel("")
-	ui.GetLabel("logging_longitude").SetLabel("")
-	ui.GetLabel("logging_distance").SetLabel("")
-	ui.GetLabel("logging_bearing").SetLabel("")
-	ui.GetLabel("logging_sunrise").SetLabel("")
-	ui.GetLabel("logging_sunset").SetLabel("")
+	ui.GetLabel("logging_latitude").SetText("")
+	ui.GetLabel("logging_longitude").SetText("")
+	ui.GetLabel("logging_distance").SetText("")
+	ui.GetLabel("logging_bearing").SetText("")
+	ui.GetLabel("logging_sunrise").SetText("")
+	ui.GetLabel("logging_sunset").SetText("")
 
 	if _, err := glib.IdleAdd(func() { c.GrabFocus() }); err != nil {
 		println("Can't add idleadd")
@@ -229,9 +230,8 @@ func (l *logging) calcSunTimes() (string, string) {
 func (l *logging) save(win *gtk.Window, id int) {
 
 	var rec db.LogRecord
-	f := func(w interface{}, msg string) {
-		_=w
-		dlg := gtk.MessageDialogNew(l.loggingWindow, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, msg)
+	f := func(_ interface{}, msg string) {
+		dlg := gtk.MessageDialogNew(l.window, gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_WARNING, gtk.BUTTONS_OK, msg)
 		dlg.Run()
 		dlg.Destroy()
 		// if _, err := glib.IdleAdd(func() { w.(*gtk.Widget).GrabFocus() }); err != nil {
@@ -330,12 +330,12 @@ func (l *logging) load(id uint) {
 	ui.GetTextBuffer("logging_remarks_buffer").SetText(rec.Remarks)
 	ui.GetComboBox("logging_receiver").SetActive(rec.Rcvr)
 	ui.GetComboBox("logging_antenna").SetActive(rec.Ant)
-	ui.GetLabel("logging_distance").SetLabel(fmt.Sprintf("%.0f", rec.Distance))
-	ui.GetLabel("logging_bearing").SetLabel(fmt.Sprintf("%.0f", rec.Bearing))
-	ui.GetLabel("logging_latitude").SetLabel(fmt.Sprintf("%.0f", rec.Latitude))
-	ui.GetLabel("logging_longitude").SetLabel(fmt.Sprintf("%.0f", rec.Longitude))
-	ui.GetLabel("logging_sunrise").SetLabel(rec.Sunrise)
-	ui.GetLabel("logging_sunset").SetLabel(rec.Sunset)
+	ui.GetEntry("logging_distance").SetText(fmt.Sprintf("%.0f", rec.Distance))
+	ui.GetEntry("logging_bearing").SetText(fmt.Sprintf("%.0f", rec.Bearing))
+	ui.GetEntry("logging_latitude").SetText(fmt.Sprintf("%.0f", rec.Latitude))
+	ui.GetEntry("logging_longitude").SetText(fmt.Sprintf("%.0f", rec.Longitude))
+	ui.GetEntry("logging_sunrise").SetText(rec.Sunrise)
+	ui.GetEntry("logging_sunset").SetText(rec.Sunset)
 
 	ui.GetEntry("logging_date").GrabFocus()
 }

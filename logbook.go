@@ -25,15 +25,16 @@ func loadLogbook() {
 		log.Println(err.Error())
 	}
 	defer rows.Close()
-	
-	var id uint
-	var dt, tm, station, frequency, city, state, country, signal, format, remarks string
+
+	// var id int
+	var id, dt, tm, station, frequency, city, state, country, signal, remarks string
+	var iter *gtk.TreeIter
 	for rows.Next() {
-		rows.Scan(&id, &dt, &tm, &station, &frequency, &city, &state, &country, &signal, &format, &remarks)
-		iter := ls.Append()
-		col := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+		rows.Scan(&id, &dt, &tm, &station, &frequency, &city, &state, &country, &signal, &remarks)
+		// iter = ls.Append()
+		col := []int{0, 1, 2, 3, 4, 5, 6, 7}
 		var val []interface{}
-		val = append(val, id, dt, tm, station, frequency, fmt.Sprintf("%s, %s %s", city, state, country), signal, format, remarks)
+		val = append(val, id, dt, tm, frequency, station, fmt.Sprintf("%s, %s %s", city, state, country), signal, remarks)
 		if err = ls.InsertWithValues(iter, 0, col, val); err != nil {
 			log.Println(err.Error())
 		}
@@ -41,7 +42,7 @@ func loadLogbook() {
 }
 
 func onLogbookTreeKeyPressEvent(tv *gtk.TreeView, e *gdk.Event) bool {
-	ek := gdk.EventKey{e} 
+	ek := gdk.EventKey{e}
 	if ek.KeyVal() == gdk.KEY_Delete {
 		s, err := tv.GetSelection()
 		if err != nil {
@@ -66,7 +67,7 @@ func onLogbookTreeKeyPressEvent(tv *gtk.TreeView, e *gdk.Event) bool {
 		// dialog.SetSizeRequest(300, 200)
 		res := dialog.Run()
 		if res == gtk.RESPONSE_OK {
-			db.DeleteLogging(id.(uint))
+			db.DeleteLogging(id.(int))
 			ui.GetListStore("logbook_store").Remove(iter)
 		}
 		dialog.Close()

@@ -46,7 +46,7 @@ type LogRecord struct {
 	State     string
 	Cnty      string
 	Signal    string
-	Format    string
+	Format    int
 	Remarks   string
 	Rcvr      int
 	Ant       int
@@ -146,7 +146,7 @@ func UpdateLogging(l *LogRecord) {
 // GetLogBookStore fills the liststore for the logbook page
 func GetLogBookStore() (*sql.Rows, error) {
 
-	rows, err := sqldb.Query(`select id, date, time, station, frequency, city, state, country, signal, format, remarks 
+	rows, err := sqldb.Query(`select cast(id as text), date, time, station, frequency, city, state, country, signal, remarks 
 	from loggings 
 	order by date, time`)
 	if err != nil {
@@ -172,8 +172,8 @@ func GetLoggingForFreq(freq string) (*sql.Rows, error) {
 }
 
 // DeleteLogging delete an entry in the logging table specified ID
-func DeleteLogging(id uint) {
-	q := "delete from loggings where id = ?"
+func DeleteLogging(id int) {
+	q := "delete from loggings where id = '?'"
 	stmt, err := sqldb.Prepare(q)
 	if err != nil {
 		log.Println(err.Error())
@@ -186,7 +186,7 @@ func DeleteLogging(id uint) {
 }
 
 // GetLoggingByID retrieves a logging by ID
-func GetLoggingByID(id uint) (*LogRecord, error) {
+func GetLoggingByID(id int) (*LogRecord, error) {
 	var l LogRecord
 
 	q := `select id, date, time, station, frequency, city, state, country, signal, format, remarks, 

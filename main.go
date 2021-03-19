@@ -98,8 +98,8 @@ func main() {
 			// *** Maps Tab ***
 			"on_maps_viewport_size_allocate": func() { mt.mapResize() },
 
-			"click":     func() { log.Println("I was clicked") },
-			"click_scc": func() { log.Println("sort_column_changed was clicked") },
+			// "click":     func() { log.Println("I was clicked") },
+			// "click_scc": func() { log.Println("sort_column_changed was clicked") },
 		}
 		ui.ConnectSignals(signals)
 

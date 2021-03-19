@@ -152,8 +152,8 @@ Author: Ken Boyd (Greynerd on github.com)
   </object>
   <object class="GtkListStore" id="logbook_store">
     <columns>
-      <!-- column-name ID -->
-      <column type="guint"/>
+      <!-- column-name id -->
+      <column type="gchararray"/>
       <!-- column-name date -->
       <column type="gchararray"/>
       <!-- column-name time -->
@@ -166,11 +166,10 @@ Author: Ken Boyd (Greynerd on github.com)
       <column type="gchararray"/>
       <!-- column-name signal -->
       <column type="gchararray"/>
-      <!-- column-name format -->
-      <column type="gchararray"/>
       <!-- column-name remarks -->
       <column type="gchararray"/>
     </columns>
+    <signal name="sort-column-changed" handler="x" swapped="no"/>
   </object>
   <object class="GtkTextBuffer" id="logging_remarks_buffer"/>
   <object class="GtkMenu" id="mainmenu">
@@ -267,9 +266,13 @@ Author: Ken Boyd (Greynerd on github.com)
             <property name="shadow-type">in</property>
             <child>
               <object class="GtkTreeView" id="logbook_tree">
+                <property name="name">logbook_tree</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
+                <property name="has-focus">True</property>
+                <property name="is-focus">True</property>
                 <property name="events">GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_STRUCTURE_MASK</property>
+                <property name="double-buffered">False</property>
                 <property name="model">logbook_store</property>
                 <property name="reorderable">True</property>
                 <property name="search-column">4</property>
@@ -282,8 +285,7 @@ Author: Ken Boyd (Greynerd on github.com)
                 <child>
                   <object class="GtkTreeViewColumn" id="lb_id">
                     <property name="visible">False</property>
-                    <property name="title" translatable="yes">ID</property>
-                    <property name="alignment">2.2351741291171123e-10</property>
+                    <property name="title" translatable="yes">id</property>
                     <child>
                       <object class="GtkCellRendererText"/>
                       <attributes>
@@ -326,7 +328,7 @@ Author: Ken Boyd (Greynerd on github.com)
                         <property name="xalign">1</property>
                       </object>
                       <attributes>
-                        <attribute name="text">4</attribute>
+                        <attribute name="text">3</attribute>
                       </attributes>
                     </child>
                   </object>
@@ -341,7 +343,7 @@ Author: Ken Boyd (Greynerd on github.com)
                     <child>
                       <object class="GtkCellRendererText"/>
                       <attributes>
-                        <attribute name="text">3</attribute>
+                        <attribute name="text">4</attribute>
                       </attributes>
                     </child>
                   </object>
@@ -355,7 +357,7 @@ Author: Ken Boyd (Greynerd on github.com)
                     <child>
                       <object class="GtkCellRendererText"/>
                       <attributes>
-                        <attribute name="text">5</attribute>
+                        <attribute name="text">4</attribute>
                       </attributes>
                     </child>
                   </object>
@@ -370,7 +372,7 @@ Author: Ken Boyd (Greynerd on github.com)
                     <child>
                       <object class="GtkCellRendererText"/>
                       <attributes>
-                        <attribute name="text">6</attribute>
+                        <attribute name="text">5</attribute>
                       </attributes>
                     </child>
                   </object>
@@ -383,7 +385,7 @@ Author: Ken Boyd (Greynerd on github.com)
                     <child>
                       <object class="GtkCellRendererText"/>
                       <attributes>
-                        <attribute name="text">8</attribute>
+                        <attribute name="text">6</attribute>
                       </attributes>
                     </child>
                   </object>
@@ -772,8 +774,6 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="reorderable">True</property>
                 <property name="enable-search">False</property>
                 <property name="fixed-height-mode">True</property>
-                <signal name="drag-data-received" handler="drag-data-received" swapped="no"/>
-                <signal name="drag-drop" handler="drag-drop" swapped="no"/>
                 <child internal-child="selection">
                   <object class="GtkTreeSelection"/>
                 </child>
@@ -1377,6 +1377,11 @@ Author: Ken Boyd (Greynerd on github.com)
                     <attribute name="text">1</attribute>
                   </attributes>
                 </child>
+                <child internal-child="entry">
+                  <object class="GtkEntry">
+                    <property name="can-focus">False</property>
+                  </object>
+                </child>
               </object>
               <packing>
                 <property name="left-attach">1</property>
@@ -1399,6 +1404,11 @@ Author: Ken Boyd (Greynerd on github.com)
                   <attributes>
                     <attribute name="text">1</attribute>
                   </attributes>
+                </child>
+                <child internal-child="entry">
+                  <object class="GtkEntry">
+                    <property name="can-focus">False</property>
+                  </object>
                 </child>
               </object>
               <packing>
@@ -1433,26 +1443,8 @@ Author: Ken Boyd (Greynerd on github.com)
               </packing>
             </child>
             <child>
-              <object class="GtkEntry" id="logging_date">
-                <property name="name">logging_date</property>
-                <property name="visible">True</property>
-                <property name="can-focus">True</property>
-                <property name="double-buffered">False</property>
-                <property name="halign">start</property>
-                <property name="margin-top">3</property>
-                <property name="shadow-type">none</property>
-                <signal name="focus-out-event" handler="on_logging_date_focus_out_event" swapped="no"/>
-                <style>
-                  <class name="logging"/>
-                </style>
-              </object>
-              <packing>
-                <property name="left-attach">1</property>
-                <property name="top-attach">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkComboBox">
+              <object class="GtkComboBox" id="logging_format">
+                <property name="name">logging_format</property>
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
                 <property name="double-buffered">False</property>
@@ -1461,6 +1453,11 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="has-entry">True</property>
                 <property name="entry-text-column">0</property>
                 <property name="id-column">0</property>
+                <child internal-child="entry">
+                  <object class="GtkEntry">
+                    <property name="can-focus">False</property>
+                  </object>
+                </child>
                 <style>
                   <class name="logging"/>
                 </style>
@@ -1658,6 +1655,25 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="top-attach">1</property>
                 <property name="width">4</property>
                 <property name="height">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="logging_date">
+                <property name="name">logging_date</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="double-buffered">False</property>
+                <property name="halign">start</property>
+                <property name="margin-top">3</property>
+                <property name="shadow-type">none</property>
+                <signal name="focus-out-event" handler="on_logging_date_focus_out_event" swapped="no"/>
+                <style>
+                  <class name="logging"/>
+                </style>
+              </object>
+              <packing>
+                <property name="left-attach">1</property>
+                <property name="top-attach">0</property>
               </packing>
             </child>
             <child>

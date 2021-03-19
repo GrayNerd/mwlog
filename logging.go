@@ -22,10 +22,10 @@ import (
 //var oneAndDone bool = false
 type logging struct {
 	window *gtk.Window
-	cancel        bool
+	cancel bool
 }
 
-func (l *logging) open(id uint) {
+func (l *logging) open(id int) {
 	if l.window == nil {
 		l.window = ui.GetWindow("logging_window")
 		l.window.HideOnDelete()
@@ -73,8 +73,8 @@ func (l *logging) edit() bool {
 	if err != nil {
 		log.Println(err.Error())
 	}
-
-	l.open(id.(uint))
+	i,_ := strconv.Atoi(id.(string))
+	l.open(i)
 	return false
 }
 
@@ -98,7 +98,7 @@ func (l *logging) clear() {
 	ui.GetEntry("logging_state").SetText("")
 	ui.GetEntry("logging_country").SetText("")
 	ui.GetEntry("logging_signal").SetText("")
-	ui.GetEntry("logging_format").SetText("")
+	ui.GetComboBox("logging_format").SetActive(0)
 	ui.GetTextBuffer("logging_remarks_buffer").SetText("")
 	// ToDo: setup configuration for default receiver and antenna
 	ui.GetComboBox("logging_receiver").SetActive(0)
@@ -187,12 +187,12 @@ func (l *logging) validateCall(c *gtk.Entry) bool {
 	ui.GetEntry("logging_city").SetText("")
 	ui.GetEntry("logging_state").SetText("")
 	ui.GetEntry("logging_country").SetText("")
-	ui.GetLabel("logging_latitude").SetText("")
-	ui.GetLabel("logging_longitude").SetText("")
-	ui.GetLabel("logging_distance").SetText("")
-	ui.GetLabel("logging_bearing").SetText("")
-	ui.GetLabel("logging_sunrise").SetText("")
-	ui.GetLabel("logging_sunset").SetText("")
+	ui.GetEntry("logging_latitude").SetText("")
+	ui.GetEntry("logging_longitude").SetText("")
+	ui.GetEntry("logging_distance").SetText("")
+	ui.GetEntry("logging_bearing").SetText("")
+	ui.GetEntry("logging_sunrise").SetText("")
+	ui.GetEntry("logging_sunset").SetText("")
 
 	if _, err := glib.IdleAdd(func() { c.GrabFocus() }); err != nil {
 		println("Can't add idleadd")
@@ -268,7 +268,7 @@ func (l *logging) save(win *gtk.Window, id int) {
 		return
 	}
 
-	rec.Format, _ = ui.GetEntry("logging_format").GetText()
+	rec.Format = ui.GetComboBox("logging_format").GetActive()
 
 	lrb := ui.GetTextBuffer("logging_remarks_buffer")
 	s, e := lrb.GetBounds()
@@ -290,12 +290,20 @@ func (l *logging) save(win *gtk.Window, id int) {
 		return
 	}
 
-	rec.Latitude, _ = strconv.ParseFloat(ui.GetLabel("logging_latitude").GetLabel(), 64)
-	rec.Longitude, _ = strconv.ParseFloat(ui.GetLabel("logging_longitude").GetLabel(), 64)
-	rec.Distance, _ = strconv.ParseFloat(ui.GetLabel("logging_distance").GetLabel(), 64)
-	rec.Bearing, _ = strconv.ParseFloat(ui.GetLabel("logging_bearing").GetLabel(), 64)
-	rec.Sunrise = ui.GetLabel("logging_sunrise").GetLabel()
-	rec.Sunset = ui.GetLabel("logging_sunset").GetLabel()
+	t,_ := ui.GetEntry("logging_latitude").GetText()
+	rec.Latitude, _ = strconv.ParseFloat(t, 64)
+
+	t,_ = ui.GetEntry("logging_longitude").GetText()
+	rec.Longitude, _ = strconv.ParseFloat(t, 64)
+	
+	t,_ = ui.GetEntry("logging_distance").GetText()
+	rec.Distance, _ = strconv.ParseFloat(t, 64)
+	
+	t,_=ui.GetEntry("logging_bearing").GetText()
+	rec.Bearing, _ = strconv.ParseFloat(t, 64)
+	
+	rec.Sunrise, _ = ui.GetEntry("logging_sunrise").GetText()
+	rec.Sunset, _ = ui.GetEntry("logging_sunset").GetText()
 
 	var isNew bool
 	if id != 0 {
@@ -312,7 +320,7 @@ func (l *logging) save(win *gtk.Window, id int) {
 	ui.GetTreeView("logbook_tree").ScrollToPoint(0, 0)
 }
 
-func (l *logging) load(id uint) {
+func (l *logging) load(id int) {
 
 	rec, err := db.GetLoggingByID(id)
 	if err != nil {
@@ -326,7 +334,7 @@ func (l *logging) load(id uint) {
 	ui.GetEntry("logging_state").SetText(rec.State)
 	ui.GetEntry("logging_country").SetText(rec.Cnty)
 	ui.GetEntry("logging_signal").SetText(rec.Signal)
-	ui.GetEntry("logging_format").SetText(rec.Format)
+	ui.GetComboBox("logging_format").SetActive(rec.Format)
 	ui.GetTextBuffer("logging_remarks_buffer").SetText(rec.Remarks)
 	ui.GetComboBox("logging_receiver").SetActive(rec.Rcvr)
 	ui.GetComboBox("logging_antenna").SetActive(rec.Ant)

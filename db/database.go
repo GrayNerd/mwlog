@@ -9,21 +9,6 @@ import (
 	"os"
 )
 
-// const (
-// 	colID = iota
-// 	colDate
-// 	colTime
-// 	colStation
-// 	colFrequency
-// 	colCity
-// 	colState
-// 	colCountry
-// 	colSignal
-// 	colRemarks
-// 	colRcvr
-// 	colAnt
-// )
-
 var sqldb *sql.DB
 
 // Channel is the structure of the channels table
@@ -66,14 +51,20 @@ func OpenDB() {
 		if err != nil {
 			log.Fatalln(err.Error())
 		}
-		file.Close()
+		err = file.Close()
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
 		if sqldb, err = sql.Open("sqlite3", "mwlog.db"); err != nil {
 			log.Fatalln(err.Error())
 		}
 		if err := createDDL(); err != nil {
 			log.Fatalln(err.Error())
 		}
-		sqldb.Close()
+		err = sqldb.Close()
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
 	}
 	if sqldb, err = sql.Open("sqlite3", "mwlog.db"); err != nil {
 		log.Fatalln(err.Error())
@@ -104,25 +95,30 @@ func GetMWListByCall(station string) *sql.Rows {
 }
 
 // AddLogging saves a log entry to the loggings table
-func AddLogging(l *LogRecord) int {
+func AddLogging(l LogRecord) (int, error) {
 	_, err := sqldb.Exec(`Insert into loggings (date, time, station, frequency, city, state, country, 
 		signal, format, remarks, receiver, antenna, latitude, longitude, distance, bearing, sunrise, sunset) 
 								 values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-								 l.Dt, l.Tm, l.Station, l.Frequency, l.City, l.State, l.Cnty, l.Signal, l.Format, l.Remarks, l.Rcvr, l.Ant, l.Latitude, l.Longitude, l.Distance, l.Bearing, l.Sunrise, l.Sunset)
+		l.Dt, l.Tm, l.Station, l.Frequency, l.City, l.State, l.Cnty, l.Signal, l.Format, l.Remarks, l.Rcvr, l.Ant, l.Latitude, l.Longitude, l.Distance, l.Bearing, l.Sunrise, l.Sunset)
 	if err != nil {
-		log.Println(err.Error())
+		return -1, err
 	}
 	log.Println("Add logging", l.ID)
 	var id int
 	rows, err := sqldb.Query("Select last_insert_rowid()")
 	if err != nil {
-		log.Println(err.Error())
+		return -1, err
 	}
 	defer rows.Close()
-	rows.Next()
-	rows.Scan(&id)
-	l.ID = id
-	return id
+	if rows.Next() {
+		err := rows.Scan(&id)
+		if err != nil {
+			return -1, err
+		}
+		return id, nil
+	} else {
+		return -1, err
+	}
 }
 
 // UpdateLogging updates an existing logging record
@@ -159,7 +155,8 @@ func GetLogBookStore() (*sql.Rows, error) {
 // GetLoggingForFreq fills the liststore for the channels logging section
 func GetLoggingForFreq(freq string) (*sql.Rows, error) {
 
-	rows, err := sqldb.Query(`select id, station, city, state, country, format, min(date) as firstheard, count(*) as times
+	rows, err := sqldb.Query(`select id, station, city, state, country, format, 
+       										min(date) as firstheard, count(*) as times
 								from loggings 
 								where frequency = ?
 								group by station
@@ -173,7 +170,7 @@ func GetLoggingForFreq(freq string) (*sql.Rows, error) {
 
 // DeleteLogging delete an entry in the logging table specified ID
 func DeleteLogging(id int) {
-	q := "delete from loggings where id = '?'"
+	q := "delete from loggings where id = ?"
 	stmt, err := sqldb.Prepare(q)
 	if err != nil {
 		log.Println(err.Error())
@@ -186,27 +183,27 @@ func DeleteLogging(id int) {
 }
 
 // GetLoggingByID retrieves a logging by ID
-func GetLoggingByID(id int) (*LogRecord, error) {
+func GetLoggingByID(id int) (LogRecord, error) {
 	var l LogRecord
 
-	q := `select id, date, time, station, frequency, city, state, country, signal, format, remarks, 
-			receiver, antenna, latitude, longitude, distance, bearing, sunrise, sunset
+	q := `select id, date, time, station, frequency, city, state, country, signal, 
+					format, remarks, receiver, antenna, 
+					latitude, longitude, distance, bearing, sunrise, sunset
 		 from loggings where id = ?`
+
 	rows, err := sqldb.Query(q, id)
 	if err != nil {
 		log.Println(err.Error())
 	}
 	defer rows.Close()
+
 	if rows.Next() {
-		rows.Scan(&l.ID, &l.Dt, &l.Tm, &l.Station, &l.Frequency, &l.City, &l.State, &l.Cnty, &l.Signal,
-				  &l.Format, &l.Remarks, &l.Rcvr, &l.Ant,
-				&l.Latitude, &l.Longitude, &l.Distance, &l.Bearing, &l.Sunrise, &l.Sunset)
+		rows.Scan(&l.ID, &l.Dt, &l.Tm, &l.Station, &l.Frequency, &l.City, &l.State, &l.Cnty, &l.Signal, &l.Format, &l.Remarks, &l.Rcvr, &l.Ant, &l.Latitude, &l.Longitude, &l.Distance, &l.Bearing, &l.Sunrise, &l.Sunset)
 	} else {
-		return nil, fmt.Errorf("Unable to retrieve logging by id")
+		return LogRecord{}, fmt.Errorf("Unable to retrieve logging by id")
 	}
 
-	return &l, nil
-
+	return l, nil
 }
 
 // GetLoggingLocations returns a *sql.Rows dataset of station, lat, long

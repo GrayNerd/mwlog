@@ -74,6 +74,7 @@ func main() {
 			// *** Logging Window ***
 			"on_logging_date_focus_out_event":    func(e *gtk.Entry) { le.validateDate(e) },
 			"on_logging_time_focus_out_event":    func(e *gtk.Entry) { le.validateTime(e) },
+			"on_logging_station_focus_in_event":  func(e *gtk.Entry) { le.validateCall(e) },
 			"on_logging_station_focus_out_event": func(e *gtk.Entry) { le.validateCall(e) },
 			"on_logging_cancel_button_clicked":   func(_ *gtk.Button) { le.window.Close() },
 
@@ -90,8 +91,13 @@ func main() {
 			"on_chan_save_clicked":     func() { ch.saveChannel() },
 
 			// *** Logbook Tab ***
-			"on_lb_tree_selection_changed":    func(ts *gtk.TreeSelection) { displayRow(ts) },
-			"on_logbook_tree_key_press_event": func(tv *gtk.TreeView, e *gdk.Event) { onLogbookTreeKeyPressEvent(tv, e) },
+			"on_lb_tree_selection_changed":       func(ts *gtk.TreeSelection) { displayRow(ts) },
+			"on_logbook_tree_key_press_event":    func(tv *gtk.TreeView, e *gdk.Event) { onLogbookTreeKeyPressEvent(tv, e) },
+			"on_logbook_tree_button_press_event": func(tv *gtk.TreeView, e *gdk.Event) { onLogbookTreeButtonPressEvent(tv, e, le) },
+
+			// *** Logbook popup menu ***
+			"on_pu_edit_activate":   func() { le.edit() },
+			"on_pu_delete_activate": func() { onLogbookDelete() },
 
 			// *** MWList Tab ***
 

@@ -3,19 +3,17 @@ package main
 import (
 	"fmt"
 	"log"
-	"mwlog/db"
-	"mwlog/ui"
 	"strconv"
 	"strings"
+
+	"mwlog/db"
+	"mwlog/ui"
 
 	"github.com/gotk3/gotk3/gtk"
 )
 
 type chanTab struct {
-
 }
-
-
 
 func (ct *chanTab) showChannelsTab() {
 	// buildFreqList()
@@ -26,10 +24,10 @@ func (ct *chanTab) showChannelsTab() {
 
 func (ct *chanTab) buildFreqList() {
 	ts := ui.GetTreeStore("chan_freq_list_store")
-	for n := 530; n <= 1700; n+=10 {
+	for n := 530; n <= 1700; n += 10 {
 		f := fmt.Sprintf("%4d", n)
 		i := ts.Append(nil)
-	    if err := ts.SetValue(i, 0, f); err != nil {
+		if err := ts.SetValue(i, 0, f); err != nil {
 			log.Fatalln(fmt.Errorf(err.Error()), "Unable to set frequency")
 		}
 	}
@@ -63,7 +61,8 @@ func (ct *chanTab) loadChannel(ts *gtk.TreeSelection) {
 	}
 	loadChannelLoggings(f)
 }
-func (ct *chanTab) saveChannel () {
+
+func (ct *chanTab) saveChannel() {
 	var ch db.Channel
 
 	id, _ := ui.GetLabel("chan_id").GetText()
@@ -99,14 +98,12 @@ func loadChannelLoggings(freq string) {
 	for rows.Next() {
 		rows.Scan(&id, &station, &city, &state, &country, &format, &firstHeard, &timesHeard)
 		var iter *gtk.TreeIter
-		ls.Append(iter)
+		//ls.Append(iter)
 		col := []int{0, 1, 2, 3, 4, 5}
 		var val []interface{}
-		val = append(val, id,station, fmt.Sprintf("%s, %s %s", city, state, country), format, firstHeard, timesHeard)
+		val = append(val, id, station, fmt.Sprintf("%s, %s %s", city, state, country), format, firstHeard, timesHeard)
 		if err = ls.InsertWithValues(iter, nil, 0, col, val); err != nil {
 			log.Println(err.Error())
 		}
 	}
 }
-
-

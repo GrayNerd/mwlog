@@ -3,6 +3,7 @@ module mwlog
 go 1.15
 
 require (
+	github.com/MichaelDeMattos/GtkComboBox v0.0.0-20200912210532-53589390af2d // indirect
 	github.com/araddon/dateparse v0.0.0-20210207001429-0eec95c9db7e
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/flopp/go-staticmaps v0.0.0-20210206123633-1292f1734c3c

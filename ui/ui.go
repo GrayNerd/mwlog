@@ -167,7 +167,6 @@ func GetTreeSelection(item string) *gtk.TreeSelection {
 	return nil
 }
 
-
 // GetTreeModelSort returns a pointer to the named gtk.TreeModelSort
 func GetTreeModelSort(item string) *gtk.TreeModelSort {
 	if obj, err := builder.GetObject(item); err == nil {
@@ -292,6 +291,19 @@ func GetViewport(item string) *gtk.Viewport {
 			return e
 		}
 		log.Fatalf("%v is not a gtk.Viewport", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
+	}
+	return nil
+}
+
+// GetMenu returns a pointer to the named gtk.Menu
+func GetMenu(item string) *gtk.Menu {
+	if obj, err := builder.GetObject(item); err == nil {
+		if e, ok := obj.(*gtk.Menu); ok {
+			return e
+		}
+		log.Fatalf("%v is not a gtk.Menu", item)
 	} else {
 		log.Fatalf("%v not found in builder file: %v", item, err.Error())
 	}

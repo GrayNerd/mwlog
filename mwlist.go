@@ -20,8 +20,7 @@ func (lt *mwListTab) showMWListTab() {
 	ls := ui.GetListStore("mwlist_store")
 	ls.Clear()
 
-	var sortFreq gtk.TreeIterCompareFunc = func(model *gtk.TreeModel, iter1, iter2 *gtk.TreeIter, userData ...interface{}) int {
-		_  = userData
+	var sortFreq gtk.TreeIterCompareFunc = func(model *gtk.TreeModel, iter1, iter2 *gtk.TreeIter) int {
 		cv1, _ := model.GetValue(iter1, 0)
 		cv2, _ := model.GetValue(iter2, 0)
 		gv1,_  := cv1.GoValue()
@@ -37,9 +36,7 @@ func (lt *mwListTab) showMWListTab() {
 		return 0
 	}
 
-	var sortDistance gtk.TreeIterCompareFunc = func(model *gtk.TreeModel, iter1, iter2 *gtk.TreeIter, userData ...interface{}) int {
-		_  = userData
-	
+	var sortDistance gtk.TreeIterCompareFunc = func(model *gtk.TreeModel, iter1, iter2 *gtk.TreeIter) int {
 		cv1, _ := model.GetValue(iter1, 6)
 		cv2, _ := model.GetValue(iter2, 6)
 		gv1,_  := cv1.GoValue()
@@ -71,8 +68,6 @@ func (lt *mwListTab) showMWListTab() {
 		} else {
 			power = day
 		}
-		// var iter *gtk.TreeIter
-		// iter := ls.Append()
 		col := []int{0, 1, 2, 3, 4, 5, 6, 7}
 		var val []interface{}
 		val = append(val, frequency, station, city, state, country, power, fmt.Sprintf("%5.0f", distance), fmt.Sprintf("% 3.0f", bearing))

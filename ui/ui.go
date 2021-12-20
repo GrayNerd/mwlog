@@ -50,7 +50,7 @@ func GetDialog(item string) *gtk.Dialog {
 	return nil
 }
 
-//GetListStore returns a pointer to the named gtk.liststore
+//GetListStore returns a pointer to the named gtk.ListStore
 func GetListStore(item string) *gtk.ListStore {
 	if obj, err := builder.GetObject(item); err == nil {
 		if ls, ok := obj.(*gtk.ListStore); ok {
@@ -63,7 +63,7 @@ func GetListStore(item string) *gtk.ListStore {
 	return nil
 }
 
-// GetTreeView returns a ponter to the named gtk.treeview
+// GetTreeView returns a pointer to the named gtk.TreeView
 func GetTreeView(item string) *gtk.TreeView {
 	if obj, err := builder.GetObject(item); err == nil {
 		if tv, ok := obj.(*gtk.TreeView); ok {

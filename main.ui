@@ -101,79 +101,12 @@ Author: Ken Boyd (Greynerd on github.com)
       <!-- column-name format -->
       <column type="gchararray"/>
     </columns>
-    <data>
-      <row>
-        <col id="0">0</col>
-        <col id="1" translatable="yes">Adult Contemporary</col>
-      </row>
-      <row>
-        <col id="0">1</col>
-        <col id="1" translatable="yes">Classic</col>
-      </row>
-      <row>
-        <col id="0">2</col>
-        <col id="1" translatable="yes">Classic Rock</col>
-      </row>
-      <row>
-        <col id="0">3</col>
-        <col id="1" translatable="yes">Country</col>
-      </row>
-      <row>
-        <col id="0">4</col>
-        <col id="1" translatable="yes">Easy Listening</col>
-      </row>
-      <row>
-        <col id="0">5</col>
-        <col id="1" translatable="yes">Ethnic</col>
-      </row>
-      <row>
-        <col id="0">6</col>
-        <col id="1" translatable="yes">Gospel</col>
-      </row>
-      <row>
-        <col id="0">7</col>
-        <col id="1" translatable="yes">News</col>
-      </row>
-      <row>
-        <col id="0">8</col>
-        <col id="1" translatable="yes">Oldies</col>
-      </row>
-      <row>
-        <col id="0">9</col>
-        <col id="1" translatable="yes">Pop Hit Radio</col>
-      </row>
-      <row>
-        <col id="0">10</col>
-        <col id="1" translatable="yes">Religion</col>
-      </row>
-      <row>
-        <col id="0">11</col>
-        <col id="1" translatable="yes">Rock</col>
-      </row>
-      <row>
-        <col id="0">12</col>
-        <col id="1" translatable="yes">Spanish</col>
-      </row>
-      <row>
-        <col id="0">13</col>
-        <col id="1" translatable="yes">Sports</col>
-      </row>
-      <row>
-        <col id="0">14</col>
-        <col id="1" translatable="yes">Talk/Personality</col>
-      </row>
-      <row>
-        <col id="0">15</col>
-        <col id="1" translatable="yes">Variety</col>
-      </row>
-    </data>
   </object>
   <object class="GtkEntryCompletion" id="format_completion">
     <property name="model">format_ls</property>
     <property name="text-column">1</property>
-    <property name="popup-completion">False</property>
-    <property name="popup-set-width">False</property>
-    <property name="popup-single-match">False</property>
+    <property name="inline-completion">True</property>
+    <property name="inline-selection">True</property>
   </object>
   <object class="GtkMenu" id="logbook_popup">
     <property name="visible">True</property>
@@ -1708,16 +1641,15 @@ Author: Ken Boyd (Greynerd on github.com)
               <object class="GtkComboBox" id="logging_format">
                 <property name="name">logging_format</property>
                 <property name="visible">True</property>
-                <property name="can-focus">False</property>
+                <property name="can-focus">True</property>
+                <property name="hexpand">True</property>
                 <property name="model">format_ls</property>
-                <property name="has-frame">False</property>
                 <property name="has-entry">True</property>
                 <property name="entry-text-column">1</property>
                 <property name="id-column">0</property>
                 <child>
                   <object class="GtkCellRendererCombo">
                     <property name="model">format_ls</property>
-                    <property name="text-column">1</property>
                   </object>
                   <attributes>
                     <attribute name="text">1</attribute>

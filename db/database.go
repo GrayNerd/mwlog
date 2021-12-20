@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-var sqldb *sql.DB
+var sqlDb *sql.DB
 
 // Channel is the structure of the channels table
 type Channel struct {
@@ -29,12 +29,12 @@ type LogRecord struct {
 	Frequency string
 	City      string
 	State     string
-	Cnty      string
+	Country   string
 	Signal    string
 	Format    int
 	Remarks   string
-	Rcvr      int
-	Ant       int
+	Receiver  int
+	Antenna   int
 	Latitude  float64
 	Longitude float64
 	Distance  float64
@@ -55,18 +55,18 @@ func OpenDB() {
 		if err != nil {
 			log.Fatalln(err.Error())
 		}
-		if sqldb, err = sql.Open("sqlite3", "mwlog.db"); err != nil {
+		if sqlDb, err = sql.Open("sqlite3", "mwlog.db"); err != nil {
 			log.Fatalln(err.Error())
 		}
 		if err := createDDL(); err != nil {
 			log.Fatalln(err.Error())
 		}
-		err = sqldb.Close()
+		err = sqlDb.Close()
 		if err != nil {
 			log.Fatalln(err.Error())
 		}
 	}
-	if sqldb, err = sql.Open("sqlite3", "mwlog.db"); err != nil {
+	if sqlDb, err = sql.Open("sqlite3", "mwlog.db"); err != nil {
 		log.Fatalln(err.Error())
 	}
 }
@@ -75,7 +75,7 @@ func OpenDB() {
 func GetAllMWList() *sql.Rows {
 	readSQL := `SELECT frequency, station, city, state, country, power_day, power_night, distance, bearing
 	 FROM mwlist ORDER by cast(frequency as number), station;`
-	rows, err := sqldb.Query(readSQL)
+	rows, err := sqlDb.Query(readSQL)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
@@ -87,7 +87,45 @@ func GetMWListByCall(station string) *sql.Rows {
 	readSQL := fmt.Sprintf(`SELECT id, station, frequency, city, state, country, latitude, longitude, distance, bearing
 							  FROM mwlist 
 							  WHERE station = upper("%v");`, station)
-	rows, err := sqldb.Query(readSQL)
+	rows, err := sqlDb.Query(readSQL)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	return rows
+}
+
+func GetFormatByID(id int) string {
+	var value string
+
+	readSQL := `SELECT value FROM selections 
+				 WHERE type = 'format' AND ID = ? 
+			  ORDER BY value`
+
+	rows, err := sqlDb.Query(readSQL, id)
+	if err != nil {
+		log.Println(err.Error())
+		return err.Error()
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		err := rows.Scan(&value)
+		if err != nil {
+			log.Println(err.Error())
+			return err.Error()
+		}
+		return value
+	}
+	log.Println(err.Error())
+	return err.Error()
+}
+
+func GetAllFormats() *sql.Rows {
+	readSQL := `SELECT id, value
+                  FROM selections 
+                 WHERE type = 'format'
+                 ORDER BY value;`
+	rows, err := sqlDb.Query(readSQL)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
@@ -96,16 +134,16 @@ func GetMWListByCall(station string) *sql.Rows {
 
 // AddLogging saves a log entry to the loggings table
 func AddLogging(l LogRecord) (int, error) {
-	_, err := sqldb.Exec(`Insert into loggings (date, time, station, frequency, city, state, country, 
+	_, err := sqlDb.Exec(`Insert into loggings (date, time, station, frequency, city, state, country, 
 		signal, format, remarks, receiver, antenna, latitude, longitude, distance, bearing, sunrise, sunset) 
 								 values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-		l.Dt, l.Tm, l.Station, l.Frequency, l.City, l.State, l.Cnty, l.Signal, l.Format, l.Remarks, l.Rcvr, l.Ant, l.Latitude, l.Longitude, l.Distance, l.Bearing, l.Sunrise, l.Sunset)
+		l.Dt, l.Tm, l.Station, l.Frequency, l.City, l.State, l.Country, l.Signal, l.Format, l.Remarks, l.Receiver, l.Antenna, l.Latitude, l.Longitude, l.Distance, l.Bearing, l.Sunrise, l.Sunset)
 	if err != nil {
 		return -1, err
 	}
 	log.Println("Add logging", l.ID)
 	var id int
-	rows, err := sqldb.Query("Select last_insert_rowid()")
+	rows, err := sqlDb.Query("Select last_insert_rowid()")
 	if err != nil {
 		return -1, err
 	}
@@ -123,7 +161,7 @@ func AddLogging(l LogRecord) (int, error) {
 
 // UpdateLogging updates an existing logging record
 func UpdateLogging(l *LogRecord) {
-	s, err := sqldb.Prepare(`update loggings 
+	s, err := sqlDb.Prepare(`update loggings 
 	set date = ?, time = ?, station = ?, frequency = ?, city = ?, state = ?, 
 									country = ?, signal = ?, format = ?, remarks = ?, receiver = ?, antenna = ?,
 									latitude = ?, longitude = ?, distance = ?, bearing = ?, sunrise = ?, sunset = ?
@@ -132,17 +170,17 @@ func UpdateLogging(l *LogRecord) {
 		log.Println(err.Error())
 	}
 	defer s.Close()
-	_, err = s.Exec(l.Dt, l.Tm, l.Station, l.Frequency, l.City, l.State, l.Cnty, l.Signal, l.Format, l.Remarks, l.Rcvr, l.Ant,
+	_, err = s.Exec(l.Dt, l.Tm, l.Station, l.Frequency, l.City, l.State, l.Country, l.Signal, l.Format, l.Remarks, l.Receiver, l.Antenna,
 		l.Latitude, l.Longitude, l.Distance, l.Bearing, l.Sunrise, l.Sunset, l.ID)
 	if err != nil {
 		log.Println(err.Error())
 	}
 }
 
-// GetLogBookStore fills the liststore for the logbook page
+// GetLogBookStore fills the ListStore for the logbook page
 func GetLogBookStore() (*sql.Rows, error) {
 
-	rows, err := sqldb.Query(`select cast(id as text), date, time, station, frequency, city, state, country, signal, remarks 
+	rows, err := sqlDb.Query(`select cast(id as text), date, time, station, frequency, city, state, country, signal, remarks 
 	from loggings 
 	order by date, time`)
 	if err != nil {
@@ -152,10 +190,10 @@ func GetLogBookStore() (*sql.Rows, error) {
 	return rows, nil
 }
 
-// GetLoggingForFreq fills the liststore for the channels logging section
+// GetLoggingForFreq fills the ListStore for the channels logging section
 func GetLoggingForFreq(freq string) (*sql.Rows, error) {
 
-	rows, err := sqldb.Query(`select id, station, city, state, country, format, 
+	rows, err := sqlDb.Query(`select id, station, city, state, country, format, 
        										min(date) as firstheard, count(*) as times
 								from loggings 
 								where frequency = ?
@@ -171,7 +209,7 @@ func GetLoggingForFreq(freq string) (*sql.Rows, error) {
 // DeleteLogging delete an entry in the logging table specified ID
 func DeleteLogging(id int) {
 	q := "delete from loggings where id = ?"
-	stmt, err := sqldb.Prepare(q)
+	stmt, err := sqlDb.Prepare(q)
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -191,16 +229,19 @@ func GetLoggingByID(id int) (LogRecord, error) {
 					latitude, longitude, distance, bearing, sunrise, sunset
 		 from loggings where id = ?`
 
-	rows, err := sqldb.Query(q, id)
+	rows, err := sqlDb.Query(q, id)
 	if err != nil {
 		log.Println(err.Error())
 	}
 	defer rows.Close()
 
 	if rows.Next() {
-		rows.Scan(&l.ID, &l.Dt, &l.Tm, &l.Station, &l.Frequency, &l.City, &l.State, &l.Cnty, &l.Signal, &l.Format, &l.Remarks, &l.Rcvr, &l.Ant, &l.Latitude, &l.Longitude, &l.Distance, &l.Bearing, &l.Sunrise, &l.Sunset)
+		err := rows.Scan(&l.ID, &l.Dt, &l.Tm, &l.Station, &l.Frequency, &l.City, &l.State, &l.Country, &l.Signal, &l.Format, &l.Remarks, &l.Receiver, &l.Antenna, &l.Latitude, &l.Longitude, &l.Distance, &l.Bearing, &l.Sunrise, &l.Sunset)
+		if err != nil {
+			return LogRecord{}, err
+		}
 	} else {
-		return LogRecord{}, fmt.Errorf("Unable to retrieve logging by id")
+		return LogRecord{}, fmt.Errorf("unable to retrieve logging by id")
 	}
 
 	return l, nil
@@ -209,7 +250,7 @@ func GetLoggingByID(id int) (LogRecord, error) {
 // GetLoggingLocations returns a *sql.Rows dataset of station, lat, long
 func GetLoggingLocations() *sql.Rows {
 	q := `select station, latitude, longitude from loggings`
-	rows, err := sqldb.Query(q)
+	rows, err := sqlDb.Query(q)
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -221,7 +262,7 @@ func GetChannel(freq string) (*Channel, error) {
 	var ch Channel
 
 	q := "select id, class, daytime, nighttime from channel where frequency = ?"
-	rows, err := sqldb.Query(q, freq)
+	rows, err := sqlDb.Query(q, freq)
 	if err != nil {
 		return nil, err
 	}
@@ -229,7 +270,10 @@ func GetChannel(freq string) (*Channel, error) {
 	var id int
 	var class, daytime, nighttime string
 	if rows.Next() {
-		rows.Scan(&id, &class, &daytime, &nighttime)
+		err := rows.Scan(&id, &class, &daytime, &nighttime)
+		if err != nil {
+			return nil, err
+		}
 		ch.ID = id
 		ch.Frequency = freq
 		ch.Class = class
@@ -246,7 +290,7 @@ func SaveChannel(ch *Channel) error {
 	if ch.ID < 1 {
 		q := `insert into channel (frequency, class, daytime, nighttime) 
 				values(?,?,?,?)`
-		stmt, err := sqldb.Prepare(q)
+		stmt, err := sqlDb.Prepare(q)
 		if err != nil {
 			return err
 		}
@@ -257,7 +301,7 @@ func SaveChannel(ch *Channel) error {
 		}
 	} else {
 		q := "update channel set frequency = ?, class = ?, daytime = ?, nighttime = ? where id = ?"
-		stmt, err := sqldb.Prepare(q)
+		stmt, err := sqlDb.Prepare(q)
 		if err != nil {
 			return err
 		}

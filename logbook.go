@@ -32,7 +32,10 @@ func loadLogbook() {
 	var id, dt, tm, station, frequency, city, state, country, signal, remarks string
 	var iter *gtk.TreeIter
 	for rows.Next() {
-		rows.Scan(&id, &dt, &tm, &station, &frequency, &city, &state, &country, &signal, &remarks)
+		err := rows.Scan(&id, &dt, &tm, &station, &frequency, &city, &state, &country, &signal, &remarks)
+		if err != nil {
+			log.Println(err.Error())
+		}
 		// iter = ls.Append()
 		col := []int{0, 1, 2, 3, 4, 5, 6, 7}
 		var val []interface{}
@@ -76,7 +79,7 @@ func logbookUpdateRow(new bool, l db.LogRecord) {
 	if err := ls.SetValue(iter, 3, l.Frequency); err != nil {
 		log.Println(err.Error())
 	}
-	if err := ls.SetValue(iter, 5, l.City+", "+l.State+" "+l.Cnty); err != nil {
+	if err := ls.SetValue(iter, 5, l.City+", "+l.State+" "+l.Country); err != nil {
 		log.Println(err.Error())
 	}
 	if err := ls.SetValue(iter, 6, l.Signal); err != nil {
@@ -107,12 +110,11 @@ func onLogbookTreeButtonPressEvent(_ *gtk.TreeView, e *gdk.Event, l logging) {
 		l.edit()
 	}
 
-	if eb.Button() == 3 { // Right click
-		x := eb.X()
-		y := eb.Y()
-		log.Printf("%f -- %f", x, y)
-		m := ui.GetMenu("logbook_popup")
-		m.PopupAtPointer(e)
+	if eb.Button() == gdk.BUTTON_SECONDARY { // Right click
+		//x := eb.X()
+		//y := eb.Y()
+		//log.Printf("%f -- %f", x, y)
+		ui.GetMenu("logbook_popup").PopupAtPointer(e)
 	}
 }
 

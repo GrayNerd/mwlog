@@ -98,7 +98,7 @@ func createChannelTable() error {
 }
 
 func createTable(ddl string) error {
-	stmt, err := sqldb.Prepare(ddl)
+	stmt, err := sqlDb.Prepare(ddl)
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func createTable(ddl string) error {
 
 // TruncateTable truncates the named table
 func truncateTable(t string) error {
-	stmt, err := sqldb.Prepare(fmt.Sprintf("delete from %s", t))
+	stmt, err := sqlDb.Prepare(fmt.Sprintf("delete from %s", t))
 	if err != nil {
 		return err
 	}

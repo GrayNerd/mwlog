@@ -22,7 +22,7 @@ const (
 )
 
 // LoadLS loads the data into a liststore
-func LoadLS() {
+ func LoadLS() {
 
 	ls := ui.GetListStore("liststore")
 

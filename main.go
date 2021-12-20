@@ -37,14 +37,12 @@ func main() {
 		log.Println(err.Error())
 	}
 
-	loadCSS()
-
 	application.Connect("startup", func() {
-		var ch chanTab   //nolint
-		var mt mapsTab   //nolint
-		var lt mwListTab //nolint
+		var ch chanTab
+		var mt mapsTab
+		var lt mwListTab
 		var le logging
-		// _ = ch
+
 		notebookSwitcher := func(pn int) {
 			switch pn {
 			case 0: // logbook
@@ -64,6 +62,7 @@ func main() {
 		ui.LoadBuilder(bFile)
 
 		win := ui.GetWindow("main_window")
+
 		ch.buildFreqList()
 
 		// Map the handlers to callback functions, and connect the signals to the Builder.
@@ -74,7 +73,6 @@ func main() {
 			// *** Logging Window ***
 			"on_logging_date_focus_out_event":    func(e *gtk.Entry) { le.validateDate(e) },
 			"on_logging_time_focus_out_event":    func(e *gtk.Entry) { le.validateTime(e) },
-			"on_logging_station_focus_in_event":  func(e *gtk.Entry) { le.validateCall(e) },
 			"on_logging_station_focus_out_event": func(e *gtk.Entry) { le.validateCall(e) },
 			"on_logging_cancel_button_clicked":   func(_ *gtk.Button) { le.window.Close() },
 
@@ -109,8 +107,10 @@ func main() {
 		}
 		ui.ConnectSignals(signals)
 
-		// buildSidebar()
+		loadCSS()
+		loadSelections()
 		loadLogbook()
+
 		win.ShowAll()
 
 		application.AddWindow(win)
@@ -135,6 +135,30 @@ func loadCSS() {
 		log.Panic(err)
 	}
 	gtk.AddProviderForScreen(screen, cssProv, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+}
+
+func loadSelections() {
+	ls := ui.GetListStore("format_ls")
+	ls.Clear()
+
+	rows := db.GetAllFormats()
+	defer rows.Close()
+
+	var id int
+	var value string
+	for rows.Next() {
+		err := rows.Scan(&id, &value)
+		if err != nil {
+			log.Println(err.Error())
+		}
+		var iter *gtk.TreeIter
+		col := []int{0, 1}
+		var val []interface{}
+		val = append(val, id, value)
+		if err := ls.InsertWithValues(iter, 0, col, val); err != nil {
+			log.Println(err.Error())
+		}
+	}
 }
 
 func displayRow(ts *gtk.TreeSelection) {

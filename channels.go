@@ -44,7 +44,7 @@ func (ct *chanTab) loadChannel(ts *gtk.TreeSelection) {
 	if err != nil {
 		log.Println(err.Error())
 	}
-	f := strings.TrimSpace((freq.(string)))
+	f := strings.TrimSpace(freq.(string))
 	ch, err := db.GetChannel(f)
 	if err != nil {
 		ui.GetLabel("chan_id").SetText("0")
@@ -93,15 +93,20 @@ func loadChannelLoggings(freq string) {
 	}
 	defer rows.Close()
 
-	var id uint
-	var station, city, state, country, format, firstHeard, timesHeard string
+	var id, format int
+	var station, city, state, country, firstHeard, timesHeard string
 	for rows.Next() {
-		rows.Scan(&id, &station, &city, &state, &country, &format, &firstHeard, &timesHeard)
+		err := rows.Scan(&id, &station, &city, &state, &country, &format, &firstHeard, &timesHeard)
+		if err != nil {
+			log.Println(err.Error())
+			continue
+		}
 		var iter *gtk.TreeIter
 		//ls.Append(iter)
 		col := []int{0, 1, 2, 3, 4, 5}
 		var val []interface{}
-		val = append(val, id, station, fmt.Sprintf("%s, %s %s", city, state, country), format, firstHeard, timesHeard)
+		val = append(val, id, station, fmt.Sprintf("%s, %s %s", city, state, country),
+			db.GetFormatByID(format), firstHeard, timesHeard)
 		if err = ls.InsertWithValues(iter, nil, 0, col, val); err != nil {
 			log.Println(err.Error())
 		}

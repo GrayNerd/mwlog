@@ -38,7 +38,7 @@ func (l *logging) open(id int) {
 	if id == 0 {
 		l.window.SetTitle("Add Logging")
 		btn.SetLabel("Add")
-		hdl, _ = btn.Connect("clicked", func() {
+		hdl = btn.Connect("clicked", func() {
 			l.save(l.window, 0)
 			btn.HandlerDisconnect(hdl)
 		})
@@ -47,9 +47,8 @@ func (l *logging) open(id int) {
 	} else {
 		l.window.SetTitle("Edit Logging")
 		btn.SetLabel("Update")
-		i := id
-		hdl, _ = btn.Connect("clicked", func(btn *gtk.Button) {
-			l.save(l.window, int(i))
+		hdl = btn.Connect("clicked",  func(btn *gtk.Button) {
+			l.save(l.window, id)
 			btn.HandlerDisconnect(hdl)
 		})
 		l.load(id)
@@ -133,6 +132,8 @@ func (l *logging) calcSunTimes() (string, string) {
 	lat, _ := strconv.ParseFloat(x, 64)
 	x, _ = ui.GetEntry("logging_longitude").GetText()
 	long, _ := strconv.ParseFloat(x, 64)
+	lat = 50.5
+	long = -105.5
 
 	s.Around(lat, long, startTime)
 	rise := s.Sunrise().Format("15:04")
@@ -147,12 +148,15 @@ func (l *logging) save(win *gtk.Window, id int) {
 		dlg.Run()
 		dlg.Destroy()
 		var err error
+
 		if e, ok := w.(*gtk.Entry); ok {
-			_, err = glib.IdleAdd(func() { e.GrabFocus() })
+			_ = glib.IdleAdd(func() { e.GrabFocus() })
 		} else if e, ok := w.(*gtk.TextView); ok {
-			_, err = glib.IdleAdd(func() { e.GrabFocus() })
+			_ = glib.IdleAdd(func() { e.GrabFocus() })
 		} else if e, ok := w.(*gtk.ComboBox); ok {
-			_, err = glib.IdleAdd(func() { e.GrabFocus() })
+			_ = glib.IdleAdd(func() { e.GrabFocus() })
+		} else {
+			log.Println("Unconfigured widget type in logging.save()")
 		}
 		if err != nil {
 			log.Println("Can't add save IdleAdd")
@@ -180,7 +184,7 @@ func (l *logging) save(win *gtk.Window, id int) {
 	l.rec.Frequency, _ = ui.GetEntry("logging_frequency").GetText()
 	l.rec.City, _ = ui.GetEntry("logging_city").GetText()
 	l.rec.State, _ = ui.GetEntry("logging_state").GetText()
-	l.rec.Cnty, _ = ui.GetEntry("logging_country").GetText()
+	l.rec.Country, _ = ui.GetEntry("logging_country").GetText()
 
 	l.rec.Signal, _ = ui.GetEntry("logging_signal").GetText()
 	if len(l.rec.Signal) < 1 {
@@ -198,14 +202,14 @@ func (l *logging) save(win *gtk.Window, id int) {
 		return
 	}
 
-	l.rec.Rcvr = ui.GetComboBox("logging_receiver").GetActive()
-	if l.rec.Rcvr == -1 {
+	l.rec.Receiver = ui.GetComboBox("logging_receiver").GetActive()
+	if l.rec.Receiver == -1 {
 		f(ui.GetComboBox("logging_receiver"), "Receiver field cannot be blank")
 		return
 	}
 
-	l.rec.Ant = ui.GetComboBox("logging_antenna").GetActive()
-	if l.rec.Ant == -1 {
+	l.rec.Antenna = ui.GetComboBox("logging_antenna").GetActive()
+	if l.rec.Antenna == -1 {
 		f(ui.GetComboBox("logging_antenna"), "Antenna field cannot be blank")
 		return
 	}
@@ -227,17 +231,15 @@ func (l *logging) save(win *gtk.Window, id int) {
 
 	isNew := true
 	if id != 0 {
-		l.rec.ID = int(id)
+		l.rec.ID = id
 		db.UpdateLogging(&l.rec)
 		isNew = false
+	} else if id, err := db.AddLogging(l.rec); err != nil {
+		log.Println(err.Error())
+		win.Hide()
+		return
 	} else {
-		if id, err := db.AddLogging(l.rec); err != nil {
-			log.Println(err.Error())
-			win.Hide()
-			return
-		} else {
-			l.rec.ID = id
-		}
+		l.rec.ID = id
 	}
 
 	logbookUpdateRow(isNew, l.rec)
@@ -258,35 +260,18 @@ func (l *logging) load(id int) {
 	ui.GetEntry("logging_frequency").SetText(rec.Frequency)
 	ui.GetEntry("logging_city").SetText(rec.City)
 	ui.GetEntry("logging_state").SetText(rec.State)
-	ui.GetEntry("logging_country").SetText(rec.Cnty)
+	ui.GetEntry("logging_country").SetText(rec.Country)
 	ui.GetEntry("logging_signal").SetText(rec.Signal)
 	ui.GetComboBox("logging_format").SetActive(rec.Format)
 	ui.GetTextBuffer("logging_remarks_buffer").SetText(rec.Remarks)
-	ui.GetComboBox("logging_receiver").SetActive(rec.Rcvr)
-	ui.GetComboBox("logging_antenna").SetActive(rec.Ant)
+	ui.GetComboBox("logging_receiver").SetActive(rec.Receiver)
+	ui.GetComboBox("logging_antenna").SetActive(rec.Antenna)
 	ui.GetEntry("logging_distance").SetText(fmt.Sprintf("%.0f", rec.Distance))
 	ui.GetEntry("logging_bearing").SetText(fmt.Sprintf("%.0f", rec.Bearing))
 	ui.GetEntry("logging_latitude").SetText(fmt.Sprintf("%.2f", rec.Latitude))
 	ui.GetEntry("logging_longitude").SetText(fmt.Sprintf("%.2f", rec.Longitude))
 	ui.GetEntry("logging_sunrise").SetText(rec.Sunrise)
 	ui.GetEntry("logging_sunset").SetText(rec.Sunset)
-
-	//l.rec.Dt = rec.Dt
-	//l.rec.Tm = rec.Tm
-	//l.rec.Frequency = rec.Frequency
-	//l.rec.Station = rec.Station
-	//l.rec.City = rec.City
-	//l.rec.State = rec.State
-	//l.rec.Cnty = rec.Cnty
-	//l.rec.Signal = rec.Signal
-	//l.rec.Format = rec.Format
-	//l.rec.Remarks = rec.Remarks
-	//l.rec.Rcvr = rec.Rcvr
-	//l.rec.Ant = rec.Ant
-	//l.rec.Distance = rec.Distance
-	//l.rec.Bearing = rec.Bearing
-	//l.rec.Latitude = rec.Latitude
-	//l.rec.Longitude = rec.Longitude
 
 	ui.GetEntry("logging_date").GrabFocus()
 }
@@ -310,9 +295,7 @@ func (l *logging) validateDate(c *gtk.Entry) bool {
 				gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, err.Error())
 			dlg.Run()
 			dlg.Destroy()
-			if _, err := glib.IdleAdd(func() { c.GrabFocus() }); err != nil {
-				log.Println("Can't add validateDate:IdleAdd")
-			}
+			_ = glib.IdleAdd(func() { c.GrabFocus() })
 			return gdk.GDK_EVENT_PROPAGATE
 		}
 		c.SetText(fmt.Sprintf("%s", d.Format("2006-01-02")))
@@ -347,9 +330,7 @@ func (l *logging) validateTime(c *gtk.Entry) bool {
 		gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, "Invalid time, must be between 0000 and 2359")
 	dlg.Run()
 	dlg.Destroy()
-	if _, err := glib.IdleAdd(func() { c.GrabFocus() }); err != nil {
-		log.Println("Can't add validateDate:IdleAdd")
-	}
+	_ = glib.IdleAdd(func() { c.GrabFocus() })
 	return gdk.GDK_EVENT_PROPAGATE
 }
 
@@ -369,12 +350,11 @@ func (l *logging) validateCall(c *gtk.Entry) bool {
 			ui.GetEntry("logging_sunrise").SetText(rise)
 			ui.GetEntry("logging_sunset").SetText(set)
 			return gdk.GDK_EVENT_PROPAGATE
-		} else {
+		} 
 			d := gtk.MessageDialogNew(l.window, gtk.DIALOG_DESTROY_WITH_PARENT,
 				gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, "Station not found in MWList database")
 			d.Run()
 			d.Destroy()
-		}
 	}
 
 	ui.GetEntry("logging_station").SetText("")
@@ -389,8 +369,6 @@ func (l *logging) validateCall(c *gtk.Entry) bool {
 	ui.GetEntry("logging_sunrise").SetText("")
 	ui.GetEntry("logging_sunset").SetText("")
 
-	if _, err := glib.IdleAdd(func() { c.GrabFocus() }); err != nil {
-		println("Can't add validateCall:idleadd")
-	}
+	_ = glib.IdleAdd(func() { c.GrabFocus() })
 	return gdk.GDK_EVENT_PROPAGATE
 }

@@ -175,7 +175,7 @@ func insertStation(station, frequency, city, state, country, language string,
 	q := `INSERT INTO mwlist(station, frequency, city, state, country, language, power_day, power_night, 
 										 latitude, longitude, distance, bearing) 
 							VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
-	stmt, err := sqldb.Prepare(q)
+	stmt, err := sqlDb.Prepare(q)
 	if err != nil {
 		return err
 	}
@@ -188,7 +188,7 @@ func insertStation(station, frequency, city, state, country, language string,
 
 func callExists(station string) bool {
 	sql := fmt.Sprintf("select count(*) from mwlist where station = '%s'", station)
-	row, err := sqldb.Query(sql)
+	row, err := sqlDb.Query(sql)
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -205,7 +205,7 @@ func callExists(station string) bool {
 }
 func setPower(station, field, power string) {
 	q := fmt.Sprintf(`update mwlist set %s = "%s" where station = "%s"`, field, power, station)
-	stmt, err := sqldb.Prepare(q)
+	stmt, err := sqlDb.Prepare(q)
 	if err != nil {
 		log.Println(err.Error())
 		return
@@ -215,7 +215,7 @@ func setPower(station, field, power string) {
 
 // func getCurrentPower(station string) string {
 // 	sql := fmt.Sprintf("select power from mwlist where station = '%s'", station)
-// 	row, err := sqldb.Query(sql)
+// 	row, err := sqlDb.Query(sql)
 // 	if err != nil {
 // 		log.Println(err.Error())
 // 	}
@@ -227,7 +227,7 @@ func setPower(station, field, power string) {
 
 // func getCurrentPattern(station string) string {
 // 	sql := fmt.Sprintf("select pattern from mwlist where station = '%s'", station)
-// 	row, err := sqldb.Query(sql)
+// 	row, err := sqlDb.Query(sql)
 // 	if err != nil {
 // 		log.Println(err.Error())
 // 	}

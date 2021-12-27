@@ -60,8 +60,7 @@ func createLoggingTable() error {
 			"longitude" REAL, 
 			"distance" REAL, 
 			"bearing" REAL, 
-			"sunrise" TEXT, 
-			"sunset" TEXT, 
+			"sunstatus" TEXT, 
 			PRIMARY KEY("ID") );`
 
 	err := createTable(s)

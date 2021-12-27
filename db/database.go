@@ -39,8 +39,7 @@ type LogRecord struct {
 	Longitude float64
 	Distance  float64
 	Bearing   float64
-	Sunrise   string
-	Sunset    string
+	Sunstatus   string
 }
 
 // OpenDB opens the logging database, creating it if needed
@@ -94,6 +93,7 @@ func GetMWListByCall(station string) *sql.Rows {
 	return rows
 }
 
+// GetFormatByID returns an ID for string
 func GetFormatByID(id int) string {
 	var value string
 
@@ -120,6 +120,7 @@ func GetFormatByID(id int) string {
 	return err.Error()
 }
 
+// GetAllFormats returns a pointer to SQL rows
 func GetAllFormats() *sql.Rows {
 	readSQL := `SELECT id, value
                   FROM selections 
@@ -135,9 +136,9 @@ func GetAllFormats() *sql.Rows {
 // AddLogging saves a log entry to the loggings table
 func AddLogging(l LogRecord) (int, error) {
 	_, err := sqlDb.Exec(`Insert into loggings (date, time, station, frequency, city, state, country, 
-		signal, format, remarks, receiver, antenna, latitude, longitude, distance, bearing, sunrise, sunset) 
-								 values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
-		l.Dt, l.Tm, l.Station, l.Frequency, l.City, l.State, l.Country, l.Signal, l.Format, l.Remarks, l.Receiver, l.Antenna, l.Latitude, l.Longitude, l.Distance, l.Bearing, l.Sunrise, l.Sunset)
+		signal, format, remarks, receiver, antenna, latitude, longitude, distance, bearing, sunstatus) 
+								 values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+		l.Dt, l.Tm, l.Station, l.Frequency, l.City, l.State, l.Country, l.Signal, l.Format, l.Remarks, l.Receiver, l.Antenna, l.Latitude, l.Longitude, l.Distance, l.Bearing, l.Sunstatus)
 	if err != nil {
 		return -1, err
 	}
@@ -164,14 +165,14 @@ func UpdateLogging(l *LogRecord) {
 	s, err := sqlDb.Prepare(`update loggings 
 	set date = ?, time = ?, station = ?, frequency = ?, city = ?, state = ?, 
 									country = ?, signal = ?, format = ?, remarks = ?, receiver = ?, antenna = ?,
-									latitude = ?, longitude = ?, distance = ?, bearing = ?, sunrise = ?, sunset = ?
+									latitude = ?, longitude = ?, distance = ?, bearing = ?, sunstatus = ?
 									where id = ?`)
 	if err != nil {
 		log.Println(err.Error())
 	}
 	defer s.Close()
 	_, err = s.Exec(l.Dt, l.Tm, l.Station, l.Frequency, l.City, l.State, l.Country, l.Signal, l.Format, l.Remarks, l.Receiver, l.Antenna,
-		l.Latitude, l.Longitude, l.Distance, l.Bearing, l.Sunrise, l.Sunset, l.ID)
+		l.Latitude, l.Longitude, l.Distance, l.Bearing, l.Sunstatus, l.ID)
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -226,7 +227,7 @@ func GetLoggingByID(id int) (LogRecord, error) {
 
 	q := `select id, date, time, station, frequency, city, state, country, signal, 
 					format, remarks, receiver, antenna, 
-					latitude, longitude, distance, bearing, sunrise, sunset
+					latitude, longitude, distance, bearing, sunstatus
 		 from loggings where id = ?`
 
 	rows, err := sqlDb.Query(q, id)
@@ -236,7 +237,7 @@ func GetLoggingByID(id int) (LogRecord, error) {
 	defer rows.Close()
 
 	if rows.Next() {
-		err := rows.Scan(&l.ID, &l.Dt, &l.Tm, &l.Station, &l.Frequency, &l.City, &l.State, &l.Country, &l.Signal, &l.Format, &l.Remarks, &l.Receiver, &l.Antenna, &l.Latitude, &l.Longitude, &l.Distance, &l.Bearing, &l.Sunrise, &l.Sunset)
+		err := rows.Scan(&l.ID, &l.Dt, &l.Tm, &l.Station, &l.Frequency, &l.City, &l.State, &l.Country, &l.Signal, &l.Format, &l.Remarks, &l.Receiver, &l.Antenna, &l.Latitude, &l.Longitude, &l.Distance, &l.Bearing, &l.Sunstatus)
 		if err != nil {
 			return LogRecord{}, err
 		}

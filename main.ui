@@ -1438,8 +1438,7 @@ Author: Ken Boyd (Greynerd on github.com)
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
                     <property name="can-focus">False</property>
-                    <property name="hexpand">True</property>
-                    <property name="label" translatable="yes">Sunrise:</property>
+                    <property name="label" translatable="yes">Sun Status:</property>
                     <property name="xalign">1</property>
                   </object>
                   <packing>
@@ -1500,29 +1499,17 @@ Author: Ken Boyd (Greynerd on github.com)
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkLabel">
-                    <property name="visible">True</property>
-                    <property name="sensitive">False</property>
-                    <property name="can-focus">False</property>
-                    <property name="hexpand">True</property>
-                    <property name="label" translatable="yes">Sunset: </property>
-                    <property name="xalign">1</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">2</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="logging_sunrise">
+                  <object class="GtkEntry" id="logging_sunstatus">
                     <property name="name">logging_sunrise</property>
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
                     <property name="can-focus">False</property>
+                    <property name="margin-start">4</property>
                     <property name="editable">False</property>
                     <property name="max-length">10</property>
                     <property name="has-frame">False</property>
                     <property name="width-chars">10</property>
+                    <property name="progress-pulse-step">0</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
@@ -1535,30 +1522,16 @@ Author: Ken Boyd (Greynerd on github.com)
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
                     <property name="can-focus">False</property>
+                    <property name="margin-start">4</property>
                     <property name="editable">False</property>
                     <property name="max-length">10</property>
                     <property name="has-frame">False</property>
                     <property name="width-chars">10</property>
+                    <property name="progress-pulse-step">0</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
                     <property name="top-attach">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkEntry" id="logging_sunset">
-                    <property name="name">logging_sunset</property>
-                    <property name="visible">True</property>
-                    <property name="sensitive">False</property>
-                    <property name="can-focus">False</property>
-                    <property name="editable">False</property>
-                    <property name="max-length">10</property>
-                    <property name="has-frame">False</property>
-                    <property name="width-chars">10</property>
-                  </object>
-                  <packing>
-                    <property name="left-attach">3</property>
-                    <property name="top-attach">0</property>
                   </packing>
                 </child>
                 <child>
@@ -1571,6 +1544,7 @@ Author: Ken Boyd (Greynerd on github.com)
                     <property name="max-length">10</property>
                     <property name="has-frame">False</property>
                     <property name="width-chars">10</property>
+                    <property name="progress-pulse-step">0</property>
                   </object>
                   <packing>
                     <property name="left-attach">3</property>
@@ -1588,6 +1562,7 @@ Author: Ken Boyd (Greynerd on github.com)
                     <property name="has-frame">False</property>
                     <property name="width-chars">10</property>
                     <property name="max-width-chars">0</property>
+                    <property name="progress-pulse-step">0</property>
                   </object>
                   <packing>
                     <property name="left-attach">3</property>
@@ -1604,18 +1579,25 @@ Author: Ken Boyd (Greynerd on github.com)
                     <property name="max-length">10</property>
                     <property name="has-frame">False</property>
                     <property name="width-chars">10</property>
+                    <property name="progress-pulse-step">0</property>
                   </object>
                   <packing>
                     <property name="left-attach">1</property>
                     <property name="top-attach">2</property>
                   </packing>
                 </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
               </object>
               <packing>
                 <property name="left-attach">2</property>
                 <property name="top-attach">1</property>
                 <property name="width">4</property>
-                <property name="height">3</property>
+                <property name="height">2</property>
               </packing>
             </child>
             <child>
@@ -1666,6 +1648,18 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="left-attach">1</property>
                 <property name="top-attach">6</property>
               </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
             </child>
             <child>
               <placeholder/>

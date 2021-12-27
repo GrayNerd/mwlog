@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"math"
 	"strconv"
 	"time"
 
@@ -47,7 +48,7 @@ func (l *logging) open(id int) {
 	} else {
 		l.window.SetTitle("Edit Logging")
 		btn.SetLabel("Update")
-		hdl = btn.Connect("clicked",  func(btn *gtk.Button) {
+		hdl = btn.Connect("clicked", func(btn *gtk.Button) {
 			l.save(l.window, id)
 			btn.HandlerDisconnect(hdl)
 		})
@@ -81,12 +82,13 @@ func (l *logging) edit() bool {
 func (l *logging) prefill() {
 	dt := ui.GetEntry("logging_date")
 	tm := ui.GetEntry("logging_time")
+	ss := ui.GetEntry("logging_sunstatus")
 	tm.SetInputPurpose(gtk.INPUT_PURPOSE_DIGITS)
 
 	currentTime := time.Now()
 	dt.SetText(currentTime.Format("2006-01-02"))
 	tm.SetText(currentTime.Format("1504"))
-
+	ss.SetText(l.calcSunStatus(currentTime))
 }
 
 func (l *logging) clear() {
@@ -114,31 +116,31 @@ func (l *logging) clear() {
 	l.rec = db.LogRecord{}
 }
 
-func (l *logging) calcSunTimes() (string, string) {
+func (l *logging) calcSunStatus(tm time.Time) string {
 	var s sunrise.Sunrise
-	location, err := time.LoadLocation("Local")
-	if err != nil {
-		log.Println(err.Error())
+
+	//TODO: use config file instead
+	lat := 50.5
+	long := -105.5
+
+	s.Around(lat, long, tm)
+	rise := s.Sunrise()
+	set := s.Sunset()
+
+	dif := rise.Sub(tm).Hours()
+	if math.Abs(dif) <= 2.0 {
+		return "Sunrise"
 	}
-	dt, _ := ui.GetEntry("logging_date").GetText()
-
-	var day, month, year int
-	if _, err := fmt.Sscanf(dt, "%d-%d-%d", &year, &month, &day); err != nil {
-		log.Println(err.Error())
+	dif = set.Sub(tm).Hours()
+	if math.Abs(dif) <= 2.0 {
+		return "Sunset"
 	}
-	startTime := time.Date(year, time.Month(month), day, 0, 0, 0, 0, location)
-
-	x, _ := ui.GetEntry("logging_latitude").GetText()
-	lat, _ := strconv.ParseFloat(x, 64)
-	x, _ = ui.GetEntry("logging_longitude").GetText()
-	long, _ := strconv.ParseFloat(x, 64)
-	lat = 50.5
-	long = -105.5
-
-	s.Around(lat, long, startTime)
-	rise := s.Sunrise().Format("15:04")
-	set := s.Sunset().Format("15:04")
-	return rise, set
+	time1 := tm.Sub(rise).Hours()
+	time2 := tm.Sub(set).Hours()
+	if time1 >= 0 && time2 <= 0 {
+		return "Daytime"
+	}
+	return "Nighttime"
 }
 
 func (l *logging) save(win *gtk.Window, id int) {
@@ -226,8 +228,7 @@ func (l *logging) save(win *gtk.Window, id int) {
 	t, _ = ui.GetEntry("logging_bearing").GetText()
 	l.rec.Bearing, _ = strconv.ParseFloat(t, 64)
 
-	l.rec.Sunrise, _ = ui.GetEntry("logging_sunrise").GetText()
-	l.rec.Sunset, _ = ui.GetEntry("logging_sunset").GetText()
+	l.rec.Sunstatus, _ = ui.GetEntry("logging_sunstatus").GetText()
 
 	isNew := true
 	if id != 0 {
@@ -270,8 +271,7 @@ func (l *logging) load(id int) {
 	ui.GetEntry("logging_bearing").SetText(fmt.Sprintf("%.0f", rec.Bearing))
 	ui.GetEntry("logging_latitude").SetText(fmt.Sprintf("%.2f", rec.Latitude))
 	ui.GetEntry("logging_longitude").SetText(fmt.Sprintf("%.2f", rec.Longitude))
-	ui.GetEntry("logging_sunrise").SetText(rec.Sunrise)
-	ui.GetEntry("logging_sunset").SetText(rec.Sunset)
+	ui.GetEntry("logging_sunstatus").SetText(rec.Sunstatus)
 
 	ui.GetEntry("logging_date").GrabFocus()
 }
@@ -316,11 +316,19 @@ func (l *logging) validateTime(c *gtk.Entry) bool {
 		return gdk.GDK_EVENT_PROPAGATE
 	}
 
-	hours, err := strconv.Atoi(tm[:2])
+	var hours, mins int
+	hours, err = strconv.Atoi(tm[:2])
 	if err == nil {
-		mins, err := strconv.Atoi(tm[2:])
+		mins, err = strconv.Atoi(tm[2:])
 		if err == nil {
 			if hours < 24 && mins < 60 {
+				de, _ := ui.GetEntry("logging_date").GetText()
+				dt, _ := dateparse.ParseLocal(de)
+				t := time.Date(dt.Year(), dt.Month(), dt.Day(), hours, mins, 0, 0, dt.Location())
+
+				status := l.calcSunStatus(t)
+				ui.GetEntry("logging_sunstatus").SetText(status)
+
 				return gdk.GDK_EVENT_PROPAGATE
 			}
 		}
@@ -346,15 +354,12 @@ func (l *logging) validateCall(c *gtk.Entry) bool {
 	}
 	if len(station) > 0 {
 		if err := loadMWListData(station); err == nil {
-			rise, set := l.calcSunTimes()
-			ui.GetEntry("logging_sunrise").SetText(rise)
-			ui.GetEntry("logging_sunset").SetText(set)
 			return gdk.GDK_EVENT_PROPAGATE
-		} 
-			d := gtk.MessageDialogNew(l.window, gtk.DIALOG_DESTROY_WITH_PARENT,
-				gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, "Station not found in MWList database")
-			d.Run()
-			d.Destroy()
+		}
+		d := gtk.MessageDialogNew(l.window, gtk.DIALOG_DESTROY_WITH_PARENT,
+			gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, "Station not found in MWList database")
+		d.Run()
+		d.Destroy()
 	}
 
 	ui.GetEntry("logging_station").SetText("")

@@ -92,9 +92,10 @@ func ImportMWList() {
 		country := row[1]
 		language := row[2]
 		station := row[3]
+		_ = row[4] //b r x c i:wdae
 		address := row[5]
 		power := row[9]
-		city, state, powerDay, powerNight := parseAddress(address, power)
+		city, state, time, powerDay, powerNight := parseAddress(address, power)
 
 		latitude, _ := strconv.ParseFloat(row[6], 64)
 		longitude, _ := strconv.ParseFloat(row[7], 64)
@@ -102,9 +103,10 @@ func ImportMWList() {
 		distance, _ := strconv.Atoi(row[11])
 		bearing, _ := strconv.Atoi(row[12])
 
-		if !(country == "USA" || country == "CAN" || country == "MEX") {
-			continue
-		}
+		// if !(country == "USA" || country == "CAN" || country == "MEX") {
+		// 	continue
+		// }
+
 		f, _ := strconv.Atoi(freq)
 		if f < 530 {
 			continue
@@ -113,22 +115,29 @@ func ImportMWList() {
 			break
 		}
 
-		if callExists(station) {
-			ss := strings.FieldsFunc(row[5], func(r rune) bool {
-				if r == '(' || r == ')' {
-					return true
-				}
-				return false
-			})
-			if len(ss) > 2 {
-				if ss[1] == "D" { //set day power
-					setPower(station, "power_day", power)
-				}
-				if ss[1] == "N" { //set night power
-					setPower(station, "power_night", power)
-				}
-			}
+		// ss := strings.FieldsFunc(row[5], func(r rune) bool {
+		// 	if r == '(' || r == ')' {
+		// 		return true
+		// 	}
+		// 	return false
+		// })
 
+		// if len(ss) > 2 {
+		// 	if strings.Compare(ss[1], "D") == 0 { //set day power
+		// 		powerDay = power
+		// 	}
+		// 	if strings.Compare(ss[1], "N") == 0 { //set night power
+		// 		powerNight = power
+		// 	}
+		// }
+
+		if callExists(station) {
+			if strings.Compare(time, "D") == 0 { //set day power
+				setPower(station, "power_day", power)
+			}
+			if strings.Compare(time, "N") == 0 { //set day power
+				setPower(station, "power_night", power)
+			}
 		} else {
 			err = insertStation(station, freq, city, state, country, language, powerDay, powerNight,
 				latitude, longitude, distance, bearing)
@@ -139,7 +148,7 @@ func ImportMWList() {
 	}
 }
 
-func parseAddress(address, power string) (city, state, powerDay, powerNight string) {
+func parseAddress(address, power string) (city, state, time, powerDay, powerNight string) {
 	ss := strings.FieldsFunc(address, func(r rune) bool {
 		if r == '(' || r == ')' {
 			return true
@@ -147,7 +156,7 @@ func parseAddress(address, power string) (city, state, powerDay, powerNight stri
 		return false
 	})
 
-	if len(ss) > 1 {
+	if len(ss) >= 1 {
 		city = ss[0][:len(ss[0])-1]
 		state = ss[len(ss)-1]
 	} else {
@@ -155,13 +164,17 @@ func parseAddress(address, power string) (city, state, powerDay, powerNight stri
 		state = ""
 	}
 	if len(ss) > 2 { // has day/night
-		if ss[1] == "D" {
+		if strings.Compare(ss[1], "D") == 0 {
+			time = "D"
 			powerDay = power
 			powerNight = "off"
-		} else {
+		}
+		if strings.Compare(ss[1], "N") == 0 {
+			time = "N"
 			powerNight = power
 		}
 	} else {
+		time = ""
 		powerDay = power
 		powerNight = ""
 	}
@@ -187,6 +200,9 @@ func insertStation(station, frequency, city, state, country, language string,
 }
 
 func callExists(station string) bool {
+	if strings.Contains(station, "'") {
+		station = strings.Replace(station, "'", "''", -1)
+	}
 	sql := fmt.Sprintf("select count(*) from mwlist where station = '%s'", station)
 	row, err := sqlDb.Query(sql)
 	if err != nil {
@@ -210,7 +226,9 @@ func setPower(station, field, power string) {
 		log.Println(err.Error())
 		return
 	}
-	stmt.Exec(q)
+	if _, err = stmt.Exec(); err != nil {
+		fmt.Println(err)
+	}
 }
 
 // func getCurrentPower(station string) string {

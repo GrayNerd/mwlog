@@ -1,6 +1,7 @@
 package main
 
 import (
+	// "fmt"
 	"log"
 	"os"
 
@@ -101,6 +102,11 @@ func main() {
 
 			// *** Maps Tab ***
 			"on_maps_viewport_size_allocate": func() { mt.mapResize() },
+			"on_maps_viewport_button_release_event": func(v *glib.Object, e *gdk.Event) { 
+				mt.scroll(e) 
+			},
+
+
 
 			// "click":     func() { log.Println("I was clicked") },
 			// "click_scc": func() { log.Println("sort_column_changed was clicked") },

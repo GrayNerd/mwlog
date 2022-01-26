@@ -1,13 +1,14 @@
 package main
 
 import (
-	"mwlog/ui"
+	// "fmt"
+
 	"mwlog/db"
+	"mwlog/ui"
 
 	"image/color"
 
 	"github.com/gotk3/gotk3/gdk"
-	// "github.com/gotk3/gotk3/gtk"
 
 	"github.com/flopp/go-staticmaps"
 	"github.com/fogleman/gg"
@@ -22,6 +23,7 @@ const mapHeight = 1920.0
 const mapWidth = 1080.0
 const mapRatio = mapHeight / mapWidth
 
+var zoom = 1.0
 
 func (mt *mapsTab) showMapsTab() {
 	ctx := sm.NewContext()
@@ -52,13 +54,14 @@ func (mt *mapsTab) showMapsTab() {
 	image := ui.GetImage("maps_locations")
 	image.SetFromFile("mwlog-locations.jpg")
 	mt.origBuf = image.GetPixbuf()
+	zoom = 1
 	mt.mapResize()
 }
 
 func (mt *mapsTab) mapResize() {
 	view := ui.GetViewport("maps_viewport")
-	w := float64(view.GetAllocatedWidth())
-	h := float64(view.GetAllocatedHeight())
+	w := float64(view.GetAllocatedWidth()) * zoom
+	h := float64(view.GetAllocatedHeight()) * zoom
 	if mapRatio > w/h {
 		h = w / mapRatio
 	} else {
@@ -69,3 +72,30 @@ func (mt *mapsTab) mapResize() {
 	pixbuf, _ := mt.origBuf.ScaleSimple(int(w), int(h), gdk.INTERP_BILINEAR)
 	image.SetFromPixbuf(pixbuf)
 }
+
+
+func (mt *mapsTab) scroll(e *gdk.Event) bool {
+	ev := gdk.EventScrollNewFromEvent(e)
+	switch ev.Direction() {
+	case gdk.SCROLL_UP:
+		if zoom < 30 {
+			zoom = zoom + 0.1
+		}
+		mt.mapResize()
+		return true
+	case gdk.SCROLL_DOWN:
+		if zoom > 1 {
+			zoom = zoom - 0.1
+		}
+		mt.mapResize()
+		return true
+	}
+	return true
+}
+
+// func (mt *mapsTab) btnRelease(e *gdk.Event) bool {
+// 	ev := gdk.EventScrollNewFromEvent(e)
+// 	s := fmt.Sprintf("X = %f  ** Y = %f", ev.X(), ev.Y())
+// 	_ = s
+// 	return false
+// }

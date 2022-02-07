@@ -56,7 +56,7 @@ Author: Ken Boyd (Greynerd on github.com)
     <data>
       <row>
         <col id="0">0</col>
-        <col id="1" translatable="yes">MLA-30</col>
+        <col id="1" translatable="yes">LZ1AQ Magentic Loop</col>
       </row>
       <row>
         <col id="0">1</col>
@@ -1166,37 +1166,7 @@ Author: Ken Boyd (Greynerd on github.com)
               </packing>
             </child>
             <child>
-              <object class="GtkScrolledWindow" id="maps_tab">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="has_focus">True</property>
-                <property name="events">GDK_EXPOSURE_MASK | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_MOTION_MASK | GDK_BUTTON1_MOTION_MASK | GDK_BUTTON2_MOTION_MASK | GDK_BUTTON3_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_FOCUS_CHANGE_MASK | GDK_STRUCTURE_MASK | GDK_PROPERTY_CHANGE_MASK | GDK_VISIBILITY_NOTIFY_MASK | GDK_PROXIMITY_IN_MASK | GDK_PROXIMITY_OUT_MASK | GDK_SUBSTRUCTURE_MASK | GDK_SCROLL_MASK | GDK_TOUCH_MASK | GDK_TOUCHPAD_GESTURE_MASK | GDK_TABLET_PAD_MASK</property>
-                <property name="shadow_type">in</property>
-                <child>
-                  <object class="GtkViewport" id="maps_viewport">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="events">GDK_EXPOSURE_MASK | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_MOTION_MASK | GDK_BUTTON1_MOTION_MASK | GDK_BUTTON2_MOTION_MASK | GDK_BUTTON3_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_FOCUS_CHANGE_MASK | GDK_STRUCTURE_MASK | GDK_PROPERTY_CHANGE_MASK | GDK_VISIBILITY_NOTIFY_MASK | GDK_PROXIMITY_IN_MASK | GDK_PROXIMITY_OUT_MASK | GDK_SUBSTRUCTURE_MASK | GDK_SCROLL_MASK | GDK_TOUCH_MASK | GDK_TOUCHPAD_GESTURE_MASK | GDK_TABLET_PAD_MASK</property>
-                    <signal name="button-press-event" handler="on_maps_viewport_button_release_event" swapped="no"/>
-                    <signal name="size-allocate" handler="on_maps_viewport_size_allocate" swapped="no"/>
-                    <child>
-                      <object class="GtkImage" id="maps_locations">
-                        <property name="visible">True</property>
-                        <property name="can_focus">True</property>
-                        <property name="events">GDK_EXPOSURE_MASK | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_MOTION_MASK | GDK_BUTTON1_MOTION_MASK | GDK_BUTTON2_MOTION_MASK | GDK_BUTTON3_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_FOCUS_CHANGE_MASK | GDK_STRUCTURE_MASK | GDK_PROPERTY_CHANGE_MASK | GDK_VISIBILITY_NOTIFY_MASK | GDK_PROXIMITY_IN_MASK | GDK_PROXIMITY_OUT_MASK | GDK_SUBSTRUCTURE_MASK | GDK_SCROLL_MASK | GDK_TOUCH_MASK | GDK_TOUCHPAD_GESTURE_MASK | GDK_TABLET_PAD_MASK</property>
-                        <property name="hexpand">True</property>
-                        <property name="vexpand">True</property>
-                        <property name="pixbuf">mwlog-locations.png</property>
-                        <signal name="button-press-event" handler="on_maps_viewport_button_release_event" swapped="no"/>
-                        <signal name="scroll-event" handler="on_maps_viewport_button_release_event" swapped="no"/>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="position">3</property>
-              </packing>
+              <placeholder/>
             </child>
             <child type="tab">
               <object class="GtkLabel" id="maps_label">
@@ -1205,12 +1175,55 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="label" translatable="yes">Maps</property>
               </object>
               <packing>
+                <property name="menu_label">Maps</property>
                 <property name="position">3</property>
                 <property name="tab_fill">False</property>
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkScrolledWindow" id="maps_tab">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="events">GDK_BUTTON_RELEASE_MASK | GDK_STRUCTURE_MASK | GDK_SCROLL_MASK</property>
+                <property name="shadow_type">in</property>
+                <signal name="button-release-event" handler="on_maps_tab_button_release_event" swapped="no"/>
+                <signal name="scroll-event" handler="on_maps_tab_scroll_event" swapped="no"/>
+                <child>
+                  <object class="GtkViewport" id="maps_viewport">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="events">GDK_EXPOSURE_MASK | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_MOTION_MASK | GDK_BUTTON1_MOTION_MASK | GDK_BUTTON2_MOTION_MASK | GDK_BUTTON3_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_FOCUS_CHANGE_MASK | GDK_STRUCTURE_MASK | GDK_PROPERTY_CHANGE_MASK | GDK_VISIBILITY_NOTIFY_MASK | GDK_PROXIMITY_IN_MASK | GDK_PROXIMITY_OUT_MASK | GDK_SUBSTRUCTURE_MASK | GDK_SCROLL_MASK | GDK_TOUCH_MASK | GDK_TOUCHPAD_GESTURE_MASK | GDK_TABLET_PAD_MASK</property>
+                    <signal name="button-release-event" handler="on_maps_viewport_button_release_event" swapped="no"/>
+                    <signal name="scroll-event" handler="on_maps_viewport_scroll_event" swapped="no"/>
+                    <signal name="size-allocate" handler="on_maps_viewport_size_allocate" swapped="no"/>
+                    <child>
+                      <object class="GtkEventBox" id="map_events">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="events">GDK_EXPOSURE_MASK | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_MOTION_MASK | GDK_BUTTON1_MOTION_MASK | GDK_BUTTON2_MOTION_MASK | GDK_BUTTON3_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_FOCUS_CHANGE_MASK | GDK_STRUCTURE_MASK | GDK_PROPERTY_CHANGE_MASK | GDK_VISIBILITY_NOTIFY_MASK | GDK_PROXIMITY_IN_MASK | GDK_PROXIMITY_OUT_MASK | GDK_SUBSTRUCTURE_MASK | GDK_SCROLL_MASK | GDK_TOUCH_MASK | GDK_TOUCHPAD_GESTURE_MASK | GDK_TABLET_PAD_MASK</property>
+                        <property name="visible_window">False</property>
+                        <signal name="button-release-event" handler="on_map_events_button_release_event" swapped="no"/>
+                        <signal name="scroll-event" handler="on_map_events_scroll_event" swapped="no"/>
+                        <child>
+                          <object class="GtkImage" id="maps_locations">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="events">GDK_EXPOSURE_MASK | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_MOTION_MASK | GDK_BUTTON1_MOTION_MASK | GDK_BUTTON2_MOTION_MASK | GDK_BUTTON3_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_FOCUS_CHANGE_MASK | GDK_STRUCTURE_MASK | GDK_PROPERTY_CHANGE_MASK | GDK_VISIBILITY_NOTIFY_MASK | GDK_PROXIMITY_IN_MASK | GDK_PROXIMITY_OUT_MASK | GDK_SUBSTRUCTURE_MASK | GDK_SCROLL_MASK | GDK_TOUCH_MASK | GDK_TOUCHPAD_GESTURE_MASK | GDK_TABLET_PAD_MASK</property>
+                            <property name="hexpand">True</property>
+                            <property name="vexpand">True</property>
+                            <property name="pixbuf">mwlog-locations.jpg</property>
+                            <signal name="button-release-event" handler="on_maps_locations_button_release_event" swapped="no"/>
+                            <signal name="scroll-event" handler="on_maps_locations_scroll_event" swapped="no"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="position">4</property>
+              </packing>
             </child>
             <child type="tab">
               <placeholder/>
@@ -1252,6 +1265,18 @@ Author: Ken Boyd (Greynerd on github.com)
         <col id="1" translatable="yes">Tecsun PL-880</col>
       </row>
     </data>
+  </object>
+  <object class="GtkEntryCompletion" id="receiver_completion">
+    <property name="model">receiver_ls</property>
+    <property name="text_column">1</property>
+    <property name="inline_completion">True</property>
+    <property name="inline_selection">True</property>
+    <child>
+      <object class="GtkCellRendererText"/>
+      <attributes>
+        <attribute name="text">1</attribute>
+      </attributes>
+    </child>
   </object>
   <object class="GtkWindow" id="logging_window">
     <property name="can_focus">False</property>
@@ -1581,7 +1606,8 @@ Author: Ken Boyd (Greynerd on github.com)
                 </child>
                 <child internal-child="entry">
                   <object class="GtkEntry">
-                    <property name="can_focus">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
                   </object>
                 </child>
               </object>
@@ -1609,7 +1635,9 @@ Author: Ken Boyd (Greynerd on github.com)
                 </child>
                 <child internal-child="entry">
                   <object class="GtkEntry">
-                    <property name="can_focus">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="completion">receiver_completion</property>
                   </object>
                 </child>
               </object>
@@ -1854,7 +1882,8 @@ Author: Ken Boyd (Greynerd on github.com)
                 </child>
                 <child internal-child="entry">
                   <object class="GtkEntry">
-                    <property name="can_focus">False</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
                     <property name="completion">format_completion</property>
                   </object>
                 </child>
@@ -1996,18 +2025,6 @@ Author: Ken Boyd (Greynerd on github.com)
           </packing>
         </child>
       </object>
-    </child>
-  </object>
-  <object class="GtkEntryCompletion" id="receiver_completion">
-    <property name="model">receiver_ls</property>
-    <property name="text_column">1</property>
-    <property name="inline_completion">True</property>
-    <property name="inline_selection">True</property>
-    <child>
-      <object class="GtkCellRendererText"/>
-      <attributes>
-        <attribute name="text">1</attribute>
-      </attributes>
     </child>
   </object>
   <object class="GtkTreeStore" id="sidebar_ls">

@@ -309,3 +309,16 @@ func GetMenu(item string) *gtk.Menu {
 	}
 	return nil
 }
+
+// GetScrolledWindow returns a pointer to the named gtk.ScrolledWindow
+func GetScrolledWindow(item string) *gtk.ScrolledWindow {
+	if obj, err := builder.GetObject(item); err == nil {
+		if e, ok := obj.(*gtk.ScrolledWindow); ok {
+			return e
+		}
+		log.Fatalf("%v is not a gtk.ScrolledWindow", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
+	}
+	return nil
+}

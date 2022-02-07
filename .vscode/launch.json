@@ -15,7 +15,8 @@
 			"cwd": "${workspaceFolder}",
 			"env": {},
 			"args": [],
-			"showLog": true
+			"showLog": true,
+			"output": "stderr"
 		}
 	]
 }

@@ -102,11 +102,10 @@ func main() {
 
 			// *** Maps Tab ***
 			"on_maps_viewport_size_allocate": func() { mt.mapResize() },
-			"on_maps_viewport_button_release_event": func(v *glib.Object, e *gdk.Event) { 
-				mt.scroll(e) 
-			},
-
-
+			"on_maps_viewport_scroll_event":  func(_ *glib.Object, e *gdk.Event) { mt.zoom(e) },
+			"on_maps_viewport_button_release_event": func( _ *glib.Object, e *gdk.Event) { mt.click(e)},
+			// "on_maps_tab_scroll_event":  func(_ *gtk.ScrolledWindow, e *gdk.Event) { mt.zoom(e) },
+			// "on_maps_tab_button_release_event": func(_ *gtk.ScrolledWindow, e *gdk.Event) { mt.click(e) },
 
 			// "click":     func() { log.Println("I was clicked") },
 			// "click_scc": func() { log.Println("sort_column_changed was clicked") },

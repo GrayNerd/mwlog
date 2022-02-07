@@ -3,12 +3,14 @@ package main
 import (
 	// "fmt"
 
+	"fmt"
 	"mwlog/db"
 	"mwlog/ui"
 
 	"image/color"
 
 	"github.com/gotk3/gotk3/gdk"
+	// "github.com/gotk3/gotk3/gtk"
 
 	"github.com/flopp/go-staticmaps"
 	"github.com/fogleman/gg"
@@ -39,7 +41,7 @@ func (mt *mapsTab) showMapsTab() {
 		mark := sm.NewMarker(s2.LatLngFromDegrees(lat, long), color.RGBA{0xff, 0, 0, 0xff}, 8.0)
 		mark.Label = station + "     "
 		mark.LabelColor = color.Black
-		ctx.AddMarker(mark)
+		ctx.AddObject(mark)
 	}
 
 	img, err := ctx.Render()
@@ -73,8 +75,7 @@ func (mt *mapsTab) mapResize() {
 	image.SetFromPixbuf(pixbuf)
 }
 
-
-func (mt *mapsTab) scroll(e *gdk.Event) bool {
+func (mt *mapsTab) zoom(e *gdk.Event) bool {
 	ev := gdk.EventScrollNewFromEvent(e)
 	switch ev.Direction() {
 	case gdk.SCROLL_UP:
@@ -93,9 +94,29 @@ func (mt *mapsTab) scroll(e *gdk.Event) bool {
 	return true
 }
 
-// func (mt *mapsTab) btnRelease(e *gdk.Event) bool {
-// 	ev := gdk.EventScrollNewFromEvent(e)
-// 	s := fmt.Sprintf("X = %f  ** Y = %f", ev.X(), ev.Y())
-// 	_ = s
-// 	return false
-// }
+func (mt *mapsTab) click(e *gdk.Event) bool {
+	ev := gdk.EventScrollNewFromEvent(e)
+	s := fmt.Sprintf("X = %f  ** Y = %f", ev.X(), ev.Y())
+	vp := ui.GetViewport("maps_viewport")
+	sw := ui.GetScrolledWindow("maps_tab")
+	im := ui.GetImage("maps_locations")
+	a := sw.GetAllocation()
+	a.GetWidth()
+
+	// var x, y *gtk.Adjustment
+	// var err error
+	// if x = sw.GetHAdjustment(); err != nil {
+	// 	s = fmt.Sprintln(err)
+	// }
+	// if y, err = vp.Scrollable.GetVAdjustment(); err != nil {
+	// 	s = fmt.Sprintln(err)
+	// }
+	// s = fmt.Sprintf("X = %f ** Y = %f", x.GetValue(), y.GetValue())
+
+	_ = s
+	_ = vp
+	_ = sw
+	_ = im
+
+	return false
+}

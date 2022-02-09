@@ -36,7 +36,9 @@ func (l *logging) open(id int) {
 	btn := ui.GetButton("logging_save_button")
 
 	var hdl glib.SignalHandle
-	if id == 0 {
+	switch id {
+	case 0:
+	case -1:
 		l.window.SetTitle("Add Logging")
 		btn.SetLabel("Add")
 		hdl = btn.Connect("clicked", func() {
@@ -45,7 +47,27 @@ func (l *logging) open(id int) {
 		})
 		l.clear()
 		l.prefill()
-	} else {
+		if id == -1 {
+			tv := ui.GetTreeView("mwlist_tv")
+			s, err := tv.GetSelection()
+			if err != nil {
+				log.Println(err.Error())
+			}
+			model, iter, ok := s.GetSelected()
+			if !ok {
+				log.Println("Unable to GetSelected in onLogbookTreeRowActivated")
+			}
+			v, _ := model.(*gtk.TreeModel).GetValue(iter, 1)
+			call, err := v.GoValue()
+			if err != nil {
+				log.Println(err.Error())
+			}
+			e := ui.GetEntry("logging_station")
+			e.SetText(call.(string))
+			l.validateCall(e)
+		}
+		break
+	default:
 		l.window.SetTitle("Edit Logging")
 		btn.SetLabel("Update")
 		hdl = btn.Connect("clicked", func(btn *gtk.Button) {
@@ -77,6 +99,29 @@ func (l *logging) edit() bool {
 	i, _ := strconv.Atoi(id.(string))
 	l.open(i)
 	return false
+}
+
+func (l *logging) create() bool {
+	tv := ui.GetTreeView("mwlist_tv")
+	s, err := tv.GetSelection()
+	if err != nil {
+		log.Println(err.Error())
+	}
+	model, iter, ok := s.GetSelected()
+	if !ok {
+		log.Println("Unable to GetSelected in onLogbookTreeRowActivated")
+		return false
+	}
+	v, _ := model.(*gtk.TreeModel).GetValue(iter, 1)
+	id, err := v.GoValue()
+	if err != nil {
+		log.Println(err.Error())
+	}
+	e := ui.GetEntry("logging_station")
+	e.SetText(id.(string))
+	l.validateCall(e)
+
+	return true
 }
 
 func (l *logging) prefill() {

@@ -5,16 +5,17 @@ import (
 	"strconv"
 	"strings"
 
-	// "github.com/gotk3/gotk3/gtk"
 	"log"
 	"mwlog/db"
 	"mwlog/ui"
 
+	"github.com/gotk3/gotk3/gdk"
 	"github.com/gotk3/gotk3/gtk"
 )
 
 type mwListTab struct {
 }
+
 
 func (lt *mwListTab) showMWListTab() {
 	tsDetails := ui.GetTreeStore("mwlist_store")
@@ -83,7 +84,7 @@ func (lt *mwListTab) showMWListTab() {
 	var parent *gtk.TreeIter
 	for rows.Next() {
 		rows.Scan(&frequency, &station, &city, &state, &country, &day, &night, &distance, &bearing)
-		f,_ := strconv.Atoi(frequency)
+		f, _ := strconv.Atoi(frequency)
 		if f%10 != 0 {
 			continue
 		}
@@ -100,14 +101,16 @@ func (lt *mwListTab) showMWListTab() {
 			}
 		}
 
-		if night != "" && strings.Compare(night,day) != 0 {
+		if night != "" && strings.Compare(night, day) != 0 {
 			power = fmt.Sprintf("%v/%v", day, night)
 		} else {
 			power = day
 		}
 
 		fmt.Sscanf(power, "%f", &fPower)
-		if fPower <= 0.01 { continue}
+		if fPower <= 0.01 {
+			continue
+		}
 		powerSort := fmt.Sprintf("%010.5f", fPower)
 		distanceSort := fmt.Sprintf("%015.5f", distance)
 		bearingSort := fmt.Sprintf("%04.0f", bearing)
@@ -122,8 +125,18 @@ func (lt *mwListTab) showMWListTab() {
 	}
 }
 
-func atoi(frequency string) {
-	panic("unimplemented")
+func onMWListTreeButtonPressEvent(_ *gtk.TreeView, e *gdk.Event) {
+	// Both of these work for a double click...which one's better?
+	// gdk.EVENT_2BUTTON_PRESS
+	// gdk.EVENT_DOUBLE_BUTTON_PRESS
+	var l logging
+	eb := gdk.EventButtonNewFromEvent(e)
+	switch eb.Type() {
+	case gdk.EVENT_DOUBLE_BUTTON_PRESS: // Double click
+		l.open(-1)
+
+	}
+
 }
 
 // func (x *gtk.TreeIterCompareFunc)  sortFunc(model *gtk.TreeModel, iter1, iter2 *gtk.TreeIter) int {

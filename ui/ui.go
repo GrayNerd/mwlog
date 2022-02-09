@@ -13,10 +13,13 @@ var builder *gtk.Builder
 func LoadBuilder(f string) {
 	b, err := gtk.BuilderNewFromFile(f)
 	if err != nil {
+		// msgf("unable to open builder file: %v", f)
 		log.Fatalf("unable to open builder file: %v", f)
 	}
 	builder = b
 }
+
+
 
 // ConnectSignals just calls the builder.ConnectSignals
 func ConnectSignals(signals map[string]interface{}) {

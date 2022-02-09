@@ -94,6 +94,7 @@ func logbookUpdateRow(new bool, l db.LogRecord) {
 func onLogbookTreeKeyPressEvent(tv *gtk.TreeView, e *gdk.Event) bool {
 	ek := gdk.EventKeyNewFromEvent(e)
 	if ek.KeyVal() == gdk.KEY_Delete {
+		// TODO: add confirmation option
 		doDelete(tv)
 	}
 	return true

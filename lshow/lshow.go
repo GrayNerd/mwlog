@@ -1,13 +1,10 @@
 package lshow
 
 import (
-	// "database/sql"
 	"fmt"
 	"log"
 	"mwlog/db"
 	"mwlog/ui"
-
-	// "github.com/gotk3/gotk3/gtk"
 )
 
 const (
@@ -40,7 +37,6 @@ const (
 		var pattern string
 		var class string
 		rows.Scan(&call, &freq, &city, &state, &country, &power, &pattern, &class)
-
 		i := ls.Append()
 		// Set the contents of the tree store row that the iterator represents
 		f := fmt.Sprintf("%4d", freq)

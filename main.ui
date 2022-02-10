@@ -116,6 +116,7 @@ Author: Ken Boyd (Greynerd on github.com)
     <property name="model">format_ls</property>
     <property name="text_column">1</property>
     <property name="inline_completion">True</property>
+    <property name="popup_single_match">False</property>
     <property name="inline_selection">True</property>
   </object>
   <object class="GtkMenu" id="logbook_popup">
@@ -1435,7 +1436,8 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="halign">end</property>
                 <property name="margin_top">3</property>
                 <property name="label" translatable="yes">Date:</property>
-                <property name="xalign">0.94999998807907104</property>
+                <property name="width_chars">10</property>
+                <property name="xalign">0.89999997615814209</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -1448,7 +1450,8 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="can_focus">False</property>
                 <property name="halign">end</property>
                 <property name="label" translatable="yes">Time:</property>
-                <property name="xalign">0.94999998807907104</property>
+                <property name="width_chars">10</property>
+                <property name="xalign">0.89999997615814209</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -1482,7 +1485,8 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="can_focus">False</property>
                 <property name="halign">end</property>
                 <property name="label" translatable="yes">Station:</property>
-                <property name="xalign">0.94999998807907104</property>
+                <property name="width_chars">10</property>
+                <property name="xalign">0.89999997615814209</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -1514,7 +1518,8 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="halign">end</property>
                 <property name="margin_start">3</property>
                 <property name="label" translatable="yes">Frequency:</property>
-                <property name="xalign">0.94999998807907104</property>
+                <property name="width_chars">10</property>
+                <property name="xalign">0.89999997615814209</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -1547,7 +1552,8 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="can_focus">False</property>
                 <property name="halign">end</property>
                 <property name="label" translatable="yes">City:</property>
-                <property name="xalign">0.94999998807907104</property>
+                <property name="width_chars">10</property>
+                <property name="xalign">0.89999997615814209</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -1593,6 +1599,8 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">State/Prov:</property>
                 <property name="justify">fill</property>
+                <property name="width_chars">10</property>
+                <property name="xalign">0.89999997615814209</property>
               </object>
               <packing>
                 <property name="left_attach">2</property>
@@ -1607,6 +1615,7 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="justify">right</property>
                 <property name="width_chars">8</property>
                 <property name="max_width_chars">14</property>
+                <property name="xalign">0.89999997615814209</property>
               </object>
               <packing>
                 <property name="left_attach">4</property>
@@ -1636,8 +1645,8 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="halign">end</property>
                 <property name="label" translatable="yes">Signal:</property>
                 <property name="justify">right</property>
-                <property name="xalign">0.94999998807907104</property>
-                <property name="yalign">0.5</property>
+                <property name="width_chars">10</property>
+                <property name="xalign">0.89999997615814209</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -1667,7 +1676,8 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="halign">end</property>
                 <property name="label" translatable="yes">Format:</property>
                 <property name="justify">right</property>
-                <property name="xalign">0.94999998807907104</property>
+                <property name="width_chars">10</property>
+                <property name="xalign">0.89999997615814209</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -1683,8 +1693,9 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="valign">start</property>
                 <property name="label" translatable="yes">Remarks:</property>
                 <property name="justify">right</property>
-                <property name="xalign">0.94999998807907104</property>
-                <property name="yalign">0.20000000298023224</property>
+                <property name="width_chars">10</property>
+                <property name="xalign">0.9100000262260437</property>
+                <property name="yalign">0.10000000149011612</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -1697,7 +1708,8 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="can_focus">False</property>
                 <property name="halign">end</property>
                 <property name="label" translatable="yes">Receiver:</property>
-                <property name="xalign">0.94999998807907104</property>
+                <property name="width_chars">10</property>
+                <property name="xalign">0.89999997615814209</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -1710,7 +1722,8 @@ Author: Ken Boyd (Greynerd on github.com)
                 <property name="can_focus">False</property>
                 <property name="halign">end</property>
                 <property name="label" translatable="yes">Antenna:</property>
-                <property name="xalign">0.94999998807907104</property>
+                <property name="width_chars">10</property>
+                <property name="xalign">0.89999997615814209</property>
               </object>
               <packing>
                 <property name="left_attach">0</property>
@@ -1813,7 +1826,8 @@ Author: Ken Boyd (Greynerd on github.com)
                     <property name="sensitive">False</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Sun Status:</property>
-                    <property name="xalign">1</property>
+                    <property name="width_chars">10</property>
+                    <property name="xalign">0.89999997615814209</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -1826,7 +1840,8 @@ Author: Ken Boyd (Greynerd on github.com)
                     <property name="sensitive">False</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Latitude:</property>
-                    <property name="xalign">1</property>
+                    <property name="width_chars">10</property>
+                    <property name="xalign">0.89999997615814209</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -1839,7 +1854,8 @@ Author: Ken Boyd (Greynerd on github.com)
                     <property name="sensitive">False</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Distance (km):</property>
-                    <property name="xalign">0.98000001907348633</property>
+                    <property name="width_chars">10</property>
+                    <property name="xalign">0.89999997615814209</property>
                   </object>
                   <packing>
                     <property name="left_attach">0</property>
@@ -1852,7 +1868,8 @@ Author: Ken Boyd (Greynerd on github.com)
                     <property name="sensitive">False</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Bearing:</property>
-                    <property name="xalign">1</property>
+                    <property name="width_chars">10</property>
+                    <property name="xalign">0.89999997615814209</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
@@ -1865,7 +1882,8 @@ Author: Ken Boyd (Greynerd on github.com)
                     <property name="sensitive">False</property>
                     <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Longitude:</property>
-                    <property name="xalign">1</property>
+                    <property name="width_chars">10</property>
+                    <property name="xalign">0.89999997615814209</property>
                   </object>
                   <packing>
                     <property name="left_attach">2</property>
@@ -1878,6 +1896,7 @@ Author: Ken Boyd (Greynerd on github.com)
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
                     <property name="can_focus">False</property>
+                    <property name="margin_left">4</property>
                     <property name="margin_start">4</property>
                     <property name="editable">False</property>
                     <property name="max_length">10</property>
@@ -1896,6 +1915,7 @@ Author: Ken Boyd (Greynerd on github.com)
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
                     <property name="can_focus">False</property>
+                    <property name="margin_left">4</property>
                     <property name="margin_start">4</property>
                     <property name="editable">False</property>
                     <property name="max_length">10</property>
@@ -1949,6 +1969,7 @@ Author: Ken Boyd (Greynerd on github.com)
                     <property name="visible">True</property>
                     <property name="sensitive">False</property>
                     <property name="can_focus">False</property>
+                    <property name="margin_left">4</property>
                     <property name="editable">False</property>
                     <property name="max_length">10</property>
                     <property name="has_frame">False</property>
@@ -1997,7 +2018,7 @@ Author: Ken Boyd (Greynerd on github.com)
               <object class="GtkComboBox" id="logging_format">
                 <property name="name">logging_format</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can_focus">False</property>
                 <property name="hexpand">True</property>
                 <property name="model">format_ls</property>
                 <property name="has_entry">True</property>
@@ -2012,10 +2033,9 @@ Author: Ken Boyd (Greynerd on github.com)
                   </attributes>
                 </child>
                 <child internal-child="entry">
-                  <object class="GtkEntry">
+                  <object class="GtkEntry" id="logging_format_entry">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="completion">format_completion</property>
                   </object>
                 </child>
               </object>

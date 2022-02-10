@@ -112,9 +112,6 @@ func onLogbookTreeButtonPressEvent(_ *gtk.TreeView, e *gdk.Event, l logging) {
 	}
 
 	if eb.Button() == gdk.BUTTON_SECONDARY { // Right click
-		//x := eb.X()
-		//y := eb.Y()
-		//log.Printf("%f -- %f", x, y)
 		ui.GetMenu("logbook_popup").PopupAtPointer(e)
 	}
 }

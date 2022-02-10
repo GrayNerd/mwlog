@@ -101,28 +101,42 @@ func (l *logging) edit() bool {
 	return false
 }
 
-func (l *logging) create() bool {
-	tv := ui.GetTreeView("mwlist_tv")
-	s, err := tv.GetSelection()
-	if err != nil {
-		log.Println(err.Error())
+func (l *logging) formatTabControl (e *gdk.Event) bool{
+	ev := gdk.EventKeyNewFromEvent(e)
+	kv := ev.KeyVal()
+	log.Printf("key val is %d", kv)
+	log.Printf("tab = %d", kv)
+	if kv == gdk.KEY_Tab {
+		// glib.IdleAdd(func() { ui.GetTextView("logging_remarks").GrabFocus() })
+		// ui.GetTextView("logging_remarks").GrabFocus()
 	}
-	model, iter, ok := s.GetSelected()
-	if !ok {
-		log.Println("Unable to GetSelected in onLogbookTreeRowActivated")
-		return false
-	}
-	v, _ := model.(*gtk.TreeModel).GetValue(iter, 1)
-	id, err := v.GoValue()
-	if err != nil {
-		log.Println(err.Error())
-	}
-	e := ui.GetEntry("logging_station")
-	e.SetText(id.(string))
-	l.validateCall(e)
 
-	return true
+	return gdk.GDK_EVENT_STOP
 }
+
+
+// func (l *logging) create() bool {
+// 	tv := ui.GetTreeView("mwlist_tv")
+// 	s, err := tv.GetSelection()
+// 	if err != nil {
+// 		log.Println(err.Error())
+// 	}
+// 	model, iter, ok := s.GetSelected()
+// 	if !ok {
+// 		log.Println("Unable to GetSelected in onLogbookTreeRowActivated")
+// 		return false
+// 	}
+// 	v, _ := model.(*gtk.TreeModel).GetValue(iter, 1)
+// 	id, err := v.GoValue()
+// 	if err != nil {
+// 		log.Println(err.Error())
+// 	}
+// 	e := ui.GetEntry("logging_station")
+// 	e.SetText(id.(string))
+// 	l.validateCall(e)
+
+// 	return true
+// }
 
 func (l *logging) prefill() {
 	dt := ui.GetEntry("logging_date")

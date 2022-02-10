@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 
-
 	_ "github.com/mattn/go-sqlite3"
 
 	"github.com/gotk3/gotk3/gdk"
@@ -15,16 +14,14 @@ import (
 	"mwlog/db"
 	"mwlog/lshow"
 	"mwlog/ui"
-
 )
 
 const appID = "com.github.graynerd.mwlog"
 const bFile = "main.ui"
 
-
 func main() {
 	log.Printf("Application Starting")
-	
+
 	gtk.Init(nil)
 	// Create a new application.
 	application, err := gtk.ApplicationNew(appID, glib.APPLICATION_FLAGS_NONE)
@@ -32,16 +29,16 @@ func main() {
 		log.Panic(err)
 	}
 
-	if set, err := gtk.SettingsGetDefault(); err == nil {
-		if set.SetProperty("gtk-theme-name", "Mint-Y-Darker-Grey") != nil {
-			log.Println(err.Error())
-		}
-		if set.SetProperty("gtk-application-prefer-dark-theme", true) != nil {
-					log.Println(err.Error())
-		}
-	} else {
-				log.Println(err.Error())
-	}
+	// if set, err := gtk.SettingsGetDefault(); err == nil {
+	// 	if set.SetProperty("gtk-theme-name", "Mint-Y-Darker-Grey") != nil {
+	// 		log.Println(err.Error())
+	// 	}
+	// 	if set.SetProperty("gtk-application-prefer-dark-theme", true) != nil {
+	// 				log.Println(err.Error())
+	// 	}
+	// } else {
+	// 			log.Println(err.Error())
+	// }
 
 	application.Connect("startup", func() {
 		var ch chanTab
@@ -104,17 +101,20 @@ func main() {
 			"on_pu_delete_activate": func() { onLogbookDelete() },
 
 			// *** MWList Tab ***
-			"on_mwlist_tv_button_press_event": func(tv *gtk.TreeView, e *gdk.Event) { onMWListTreeButtonPressEvent(tv, e)},
+			"on_mwlist_tv_button_press_event": func(tv *gtk.TreeView, e *gdk.Event) { onMWListTreeButtonPressEvent(tv, e) },
 
 			// *** Maps Tab ***
-			"on_maps_viewport_size_allocate": func() { mt.mapResize() },
-			"on_maps_viewport_scroll_event":  func(_ *glib.Object, e *gdk.Event) { mt.zoom(e) },
-			"on_maps_viewport_button_release_event": func( _ *glib.Object, e *gdk.Event) { mt.click(e)},
+			"on_maps_viewport_size_allocate":        func() { mt.mapResize() },
+			"on_maps_viewport_scroll_event":         func(_ *glib.Object, e *gdk.Event) { mt.zoom(e) },
+			"on_maps_viewport_button_release_event": func(_ *glib.Object, e *gdk.Event) { mt.click(e) },
 			// "on_maps_tab_scroll_event":  func(_ *gtk.ScrolledWindow, e *gdk.Event) { mt.zoom(e) },
 			// "on_maps_tab_button_release_event": func(_ *gtk.ScrolledWindow, e *gdk.Event) { mt.click(e) },
 
 			// "click":     func() { log.Println("I was clicked") },
 			// "click_scc": func() { log.Println("sort_column_changed was clicked") },
+			// "on_logging_format_focus_out_event": func() {log.Println("focus out")},
+			// "on___glade_unnamed_118_focus_out_event": func () {log.Println("blah")},
+			"on_logging_format_entry_key_press_event": func(_ *gtk.Entry, e *gdk.Event) { le.formatTabControl(e) },
 		}
 		ui.ConnectSignals(signals)
 
@@ -137,13 +137,13 @@ func loadCSS() {
 	var err error
 
 	if cssProv, err = gtk.CssProviderNew(); err != nil {
-				log.Panic(err)
+		log.Panic(err)
 	}
 	if err = cssProv.LoadFromPath("mwlog.css"); err != nil {
-				log.Panic(err)
+		log.Panic(err)
 	}
 	if screen, err = gdk.ScreenGetDefault(); err != nil {
-				log.Panic(err)
+		log.Panic(err)
 	}
 	gtk.AddProviderForScreen(screen, cssProv, gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 }
@@ -160,14 +160,14 @@ func loadSelections() {
 	for rows.Next() {
 		err := rows.Scan(&id, &value)
 		if err != nil {
-					log.Println(err.Error())
+			log.Println(err.Error())
 		}
 		var iter *gtk.TreeIter
 		col := []int{0, 1}
 		var val []interface{}
 		val = append(val, id, value)
 		if err := ls.InsertWithValues(iter, 0, col, val); err != nil {
-					log.Println(err.Error())
+			log.Println(err.Error())
 		}
 	}
 }
@@ -177,7 +177,7 @@ func displayRow(ts *gtk.TreeSelection) {
 	if ok {
 		path, err := model.(*gtk.TreeModel).GetPath(iter)
 		if err != nil {
-					log.Println(err.Error())
+			log.Println(err.Error())
 		}
 		tv := ui.GetTreeView("logbook_tree")
 		tv.ScrollToCell(path, nil, false, 0, 0)

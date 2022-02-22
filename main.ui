@@ -436,7 +436,7 @@ Author: Ken Boyd (Greynerd on github.com)
             <property name="can_focus">False</property>
             <property name="toolbar_style">both-horiz</property>
             <child>
-              <object class="GtkToolButton">
+              <object class="GtkToolButton" id="tb_add">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Add Logging</property>
@@ -450,8 +450,9 @@ Author: Ken Boyd (Greynerd on github.com)
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton">
+              <object class="GtkToolButton" id="tb_edit">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Edit Logging</property>
                 <property name="use_underline">True</property>
@@ -1133,9 +1134,7 @@ Author: Ken Boyd (Greynerd on github.com)
                     </child>
                     <child>
                       <object class="GtkTreeViewColumn" id="mwlist_bearing_col">
-                        <property name="resizable">True</property>
                         <property name="sizing">fixed</property>
-                        <property name="fixed_width">200</property>
                         <property name="title" translatable="yes">Bearing</property>
                         <property name="clickable">True</property>
                         <property name="reorderable">True</property>
@@ -1791,32 +1790,6 @@ Author: Ken Boyd (Greynerd on github.com)
               </packing>
             </child>
             <child>
-              <object class="GtkTextView" id="logging_remarks">
-                <property name="name">logging_remarks</property>
-                <property name="height_request">120</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="double_buffered">False</property>
-                <property name="margin_end">3</property>
-                <property name="border_width">1</property>
-                <property name="wrap_mode">word</property>
-                <property name="left_margin">4</property>
-                <property name="right_margin">4</property>
-                <property name="top_margin">4</property>
-                <property name="bottom_margin">4</property>
-                <property name="buffer">logging_remarks_buffer</property>
-                <property name="accepts_tab">False</property>
-                <style>
-                  <class name="logging"/>
-                </style>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">7</property>
-                <property name="width">5</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkGrid">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -2042,6 +2015,33 @@ Author: Ken Boyd (Greynerd on github.com)
               <packing>
                 <property name="left_attach">1</property>
                 <property name="top_attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkTextView" id="logging_remarks">
+                <property name="name">logging_remarks</property>
+                <property name="height_request">120</property>
+                <property name="visible">True</property>
+                <property name="app_paintable">True</property>
+                <property name="can_focus">True</property>
+                <property name="double_buffered">False</property>
+                <property name="margin_end">3</property>
+                <property name="border_width">1</property>
+                <property name="wrap_mode">word</property>
+                <property name="left_margin">4</property>
+                <property name="right_margin">4</property>
+                <property name="top_margin">4</property>
+                <property name="bottom_margin">4</property>
+                <property name="buffer">logging_remarks_buffer</property>
+                <property name="accepts_tab">False</property>
+                <style>
+                  <class name="logging"/>
+                </style>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">7</property>
+                <property name="width">5</property>
               </packing>
             </child>
             <child>

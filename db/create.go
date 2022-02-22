@@ -15,6 +15,9 @@ func createDDL() error {
 	if err := createChannelTable(); err != nil {
 		return err
 	}
+	if err := createMWListTable(); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -89,6 +92,19 @@ func createChannelTable() error {
 			"daytime"	TEXT,
 			"nighttime"	TEXT
 			)`
+	err := createTable(s)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func createSelectionsTable() error {
+	s := `CREATE TABLE "selections" (
+		"Type"	TEXT NOT NULL,
+		"ID"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
+		"Value"	TEXT NOT NULL UNIQUE
+)`
 	err := createTable(s)
 	if err != nil {
 		return err

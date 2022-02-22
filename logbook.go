@@ -97,6 +97,7 @@ func onLogbookTreeKeyPressEvent(tv *gtk.TreeView, e *gdk.Event) bool {
 		// TODO: add confirmation option
 		doDelete(tv)
 	}
+	logbookTBSetup()
 	return true
 }
 
@@ -114,6 +115,7 @@ func onLogbookTreeButtonPressEvent(_ *gtk.TreeView, e *gdk.Event, l logging) {
 	if eb.Button() == gdk.BUTTON_SECONDARY { // Right click
 		ui.GetMenu("logbook_popup").PopupAtPointer(e)
 	}
+	logbookTBSetup()
 }
 
 func onLogbookDelete() {
@@ -148,4 +150,15 @@ func doDelete(tv *gtk.TreeView) {
 		ui.GetListStore("logbook_store").Remove(iter)
 	}
 	dialog.Close()
+}
+
+func logbookTBSetup() {
+	b := ui.GetToolButton("tb_edit")
+	tv := ui.GetTreeView("logbook_tree")
+	if s, _ := tv.GetSelection(); s == nil {
+		// set edit icon off
+		b.SetSensitive(false)
+	}
+	// turn edit icon on 
+	b.SetSensitive(true)
 }

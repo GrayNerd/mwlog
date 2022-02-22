@@ -49,10 +49,14 @@ func main() {
 		notebookSwitcher := func(pn int) {
 			switch pn {
 			case 0: // logbook
+				logbookTBSetup()
 			case 1: // channels
+				ui.GetToolButton("tb_edit").SetSensitive(false)
 			case 2: // mw list
+				ui.GetToolButton("tb_edit").SetSensitive(false)
 				lt.showMWListTab()
 			case 3: // maps
+				ui.GetToolButton("tb_edit").SetSensitive(false)
 				mt.showMapsTab()
 			}
 		}
@@ -107,14 +111,8 @@ func main() {
 			"on_maps_viewport_size_allocate":        func() { mt.mapResize() },
 			"on_maps_viewport_scroll_event":         func(_ *glib.Object, e *gdk.Event) { mt.zoom(e) },
 			"on_maps_viewport_button_release_event": func(_ *glib.Object, e *gdk.Event) { mt.click(e) },
-			// "on_maps_tab_scroll_event":  func(_ *gtk.ScrolledWindow, e *gdk.Event) { mt.zoom(e) },
-			// "on_maps_tab_button_release_event": func(_ *gtk.ScrolledWindow, e *gdk.Event) { mt.click(e) },
 
 			// "click":     func() { log.Println("I was clicked") },
-			// "click_scc": func() { log.Println("sort_column_changed was clicked") },
-			// "on_logging_format_focus_out_event": func() {log.Println("focus out")},
-			// "on___glade_unnamed_118_focus_out_event": func () {log.Println("blah")},
-			"on_logging_format_entry_key_press_event": func(_ *gtk.Entry, e *gdk.Event) { le.formatTabControl(e) },
 		}
 		ui.ConnectSignals(signals)
 

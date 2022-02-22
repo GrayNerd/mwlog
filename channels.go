@@ -112,3 +112,14 @@ func loadChannelLoggings(freq string) {
 		}
 	}
 }
+
+func channelsTBSetup() {
+	b := ui.GetToolButton("tb_edit")
+	tv := ui.GetTreeView("logbook_tree")
+	b.SetSensitive(false)
+	if s, _ := tv.GetSelection(); s == nil {
+		// set edit icon off
+	}
+	// turn edit icon on 
+	b.SetSensitive(true)
+}

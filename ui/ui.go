@@ -222,6 +222,19 @@ func GetButton(item string) *gtk.Button {
 	return nil
 }
 
+// GetToolButton returns a pointer to the named gtk.Button
+func GetToolButton(item string) *gtk.ToolButton {
+	if obj, err := builder.GetObject(item); err == nil {
+		if e, ok := obj.(*gtk.ToolButton); ok {
+			return e
+		}
+		log.Fatalf(" %v is not a *gtk.ToolButton", item)
+	} else {
+		log.Fatalf("%v not found in builder file: %v", item, err.Error())
+	}
+	return nil
+}
+
 // GetTextView returns a pointer to the named gtk.TextView
 func GetTextView(item string) *gtk.TextView {
 	if obj, err := builder.GetObject(item); err == nil {

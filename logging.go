@@ -38,6 +38,7 @@ func (l *logging) open(id int) {
 	var hdl glib.SignalHandle
 	switch id {
 	case 0:
+		fallthrough
 	case -1:
 		l.window.SetTitle("Add Logging")
 		btn.SetLabel("Add")
@@ -75,6 +76,7 @@ func (l *logging) open(id int) {
 			btn.HandlerDisconnect(hdl)
 		})
 		l.load(id)
+		break
 	}
 	l.window.ShowAll()
 }
@@ -101,19 +103,18 @@ func (l *logging) edit() bool {
 	return false
 }
 
-func (l *logging) formatTabControl (e *gdk.Event) bool{
-	ev := gdk.EventKeyNewFromEvent(e)
-	kv := ev.KeyVal()
-	log.Printf("key val is %d", kv)
-	log.Printf("tab = %d", kv)
-	if kv == gdk.KEY_Tab {
-		// glib.IdleAdd(func() { ui.GetTextView("logging_remarks").GrabFocus() })
-		// ui.GetTextView("logging_remarks").GrabFocus()
-	}
+// func (l *logging) formatTabControl (e *gdk.Event) bool{
+// 	ev := gdk.EventKeyNewFromEvent(e)
+// 	kv := ev.KeyVal()
+// 	log.Printf("key val is %d", kv)
+// 	log.Printf("tab = %d", kv)
+// 	if kv == gdk.KEY_Tab {
+// 		// glib.IdleAdd(func() { ui.GetTextView("logging_remarks").GrabFocus() })
+// 		// ui.GetTextView("logging_remarks").GrabFocus()
+// 	}
 
-	return gdk.GDK_EVENT_STOP
-}
-
+// 	return gdk.GDK_EVENT_STOP
+// }
 
 // func (l *logging) create() bool {
 // 	tv := ui.GetTreeView("mwlist_tv")
@@ -430,8 +431,7 @@ func (l *logging) validateCall(c *gtk.Entry) bool {
 	ui.GetEntry("logging_longitude").SetText("")
 	ui.GetEntry("logging_distance").SetText("")
 	ui.GetEntry("logging_bearing").SetText("")
-	ui.GetEntry("logging_sunrise").SetText("")
-	ui.GetEntry("logging_sunset").SetText("")
+	ui.GetEntry("logging_sunstatus").SetText("")
 
 	_ = glib.IdleAdd(func() { c.GrabFocus() })
 	return gdk.GDK_EVENT_PROPAGATE

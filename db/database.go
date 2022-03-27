@@ -3,6 +3,8 @@ package db
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
+
 	// "mwlog/ui"
 
 	"log"
@@ -39,7 +41,7 @@ type LogRecord struct {
 	Longitude float64
 	Distance  float64
 	Bearing   float64
-	Sunstatus   string
+	Sunstatus string
 }
 
 // OpenDB opens the logging database, creating it if needed
@@ -93,13 +95,11 @@ func GetMWListByCall(station string) *sql.Rows {
 	return rows
 }
 
-// GetFormatByID returns an ID for string
+// GetFormatByID returns an Name for ID
 func GetFormatByID(id int) string {
 	var value string
 
-	readSQL := `SELECT value FROM selections 
-				 WHERE type = 'format' AND ID = ? 
-			  ORDER BY value`
+	readSQL := "SELECT value FROM formats WHERE ID = ?"
 
 	rows, err := sqlDb.Query(readSQL, id)
 	if err != nil {
@@ -120,18 +120,162 @@ func GetFormatByID(id int) string {
 	return err.Error()
 }
 
+// GetFormatIDByName returns an ID for Name
+func GetFormatIDByName(name string) int {
+	var value string
+
+	readSQL := `SELECT id FROM formats WHERE Name = ?`
+	rows, err := sqlDb.Query(readSQL, name)
+	if err != nil {
+		log.Println(err.Error())
+		return -1
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		err := rows.Scan(&value)
+		if err != nil {
+			log.Println(err.Error())
+			return -1
+		}
+		id, _ := strconv.Atoi(value)
+		return id
+	}
+	log.Println(err.Error())
+	return -1
+}
+
 // GetAllFormats returns a pointer to SQL rows
 func GetAllFormats() *sql.Rows {
-	readSQL := `SELECT id, value
-                  FROM selections 
-                 WHERE type = 'format'
-                 ORDER BY value;`
+	readSQL := `SELECT id, name FROM formats ORDER BY name;`
 	rows, err := sqlDb.Query(readSQL)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
 	return rows
 }
+
+// GetReceiverByID returns an Name for ID
+func GetReceiverByID(id int) string {
+	var value string
+
+	readSQL := `SELECT name FROM receiver WHERE ID = ?`
+
+	rows, err := sqlDb.Query(readSQL, id)
+	if err != nil {
+		log.Println(err.Error())
+		return err.Error()
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		err := rows.Scan(&value)
+		if err != nil {
+			log.Println(err.Error())
+			return err.Error()
+		}
+		return value
+	}
+	log.Println(err.Error())
+	return err.Error()
+}
+
+// GetReceiverIDByName returns an ID for Name
+func GetReceiverIDByName(name string) int {
+	var value string
+
+	readSQL := `SELECT id FROM receivers WHERE Name = ?`
+	rows, err := sqlDb.Query(readSQL, name)
+	if err != nil {
+		log.Println(err.Error())
+		return -1
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		err := rows.Scan(&value)
+		if err != nil {
+			log.Println(err.Error())
+			return -1
+		}
+		id, _ := strconv.Atoi(value)
+		return id
+	}
+	log.Println(err.Error())
+	return -1
+}
+
+// GetAllReceivers returns a pointer to SQL rows
+func GetAllReceivers() *sql.Rows {
+	readSQL := `SELECT id, name FROM receivers ORDER BY name;`
+	rows, err := sqlDb.Query(readSQL)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	return rows
+}
+
+// GetAntennaByID returns an Name for ID
+func GetAntennaByID(id int) string {
+	var value string
+
+	readSQL := `SELECT name FROM antennas WHERE ID = ?`
+
+	rows, err := sqlDb.Query(readSQL, id)
+	if err != nil {
+		log.Println(err.Error())
+		return err.Error()
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		err := rows.Scan(&value)
+		if err != nil {
+			log.Println(err.Error())
+			return err.Error()
+		}
+		return value
+	}
+	log.Println(err.Error())
+	return err.Error()
+}
+
+// GetAntennaIDByName returns an ID for Name
+func GetAntennaIDByName(name string) int {
+	var value string
+
+	readSQL := `SELECT id FROM antennas WHERE Name = ?`
+	rows, err := sqlDb.Query(readSQL, name)
+	if err != nil {
+		log.Println(err.Error())
+		return -1
+	}
+	defer rows.Close()
+
+	if rows.Next() {
+		err := rows.Scan(&value)
+		if err != nil {
+			log.Println(err.Error())
+			return -1
+		}
+		id, _ := strconv.Atoi(value)
+		return id
+	}
+	log.Println(err.Error())
+	return -1
+}
+
+// GetAllAntennas returns a pointer to SQL rows
+func GetAllAntennas() *sql.Rows {
+	readSQL := `SELECT id, name FROM antennas ORDER BY name;`
+	rows, err := sqlDb.Query(readSQL)
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	return rows
+}
+
+
 
 // AddLogging saves a log entry to the loggings table
 func AddLogging(l LogRecord) (int, error) {
@@ -155,9 +299,8 @@ func AddLogging(l LogRecord) (int, error) {
 			return -1, err
 		}
 		return id, nil
-	} else {
-		return -1, err
 	}
+	return -1, err
 }
 
 // UpdateLogging updates an existing logging record

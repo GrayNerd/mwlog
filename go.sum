@@ -1,5 +1,3 @@
-github.com/araddon/dateparse v0.0.0-20210207001429-0eec95c9db7e h1:OjdSMCht0ZVX7IH0nTdf00xEustvbtUGRgMh3gbdmOg=
-github.com/araddon/dateparse v0.0.0-20210207001429-0eec95c9db7e/go.mod h1:DCaWoUhZrYW9p1lxo/cm8EmUOOzAPSEZNGF2DK1dJgw=
 github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de h1:FxWPpzIjnTlhPwqqXc4/vE0f7GvRjuAsbW+HOIe8KnA=
 github.com/araddon/dateparse v0.0.0-20210429162001-6b43995a97de/go.mod h1:DCaWoUhZrYW9p1lxo/cm8EmUOOzAPSEZNGF2DK1dJgw=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
@@ -22,8 +20,6 @@ github.com/joeshaw/gengen v0.0.0-20190604015154-c77d87825f5a/go.mod h1:v2qvRL8Xw
 github.com/keep94/sunrise v1.0.1 h1:o2Mj+rJFGGdEOYIw6RhdI23ZZ1WfyKPH/BEp8es3rlQ=
 github.com/keep94/sunrise v1.0.1/go.mod h1:5J+OxXXSYjNwQqU9bLY2qjpPvWj00O2ZFt9l4JXUILc=
 github.com/mattn/go-runewidth v0.0.10/go.mod h1:RAqKPSqVFrSLVXbA8x7dzmKdmGzieGRCM46jaSJTDAk=
-github.com/mattn/go-sqlite3 v1.14.6 h1:dNPt6NO46WmLVt2DLNpwczCmdV5boIZ6g/tlDrlRUbg=
-github.com/mattn/go-sqlite3 v1.14.6/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
 github.com/mattn/go-sqlite3 v1.14.10 h1:MLn+5bFRlWMGoSRmJour3CL1w/qL96mvipqpwQW/Sfk=
 github.com/mattn/go-sqlite3 v1.14.10/go.mod h1:NyWgC/yNuGj7Q9rpYnZvas74GogHl5/Z4A/KQRfk6bU=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
@@ -33,7 +29,6 @@ github.com/scylladb/termtables v0.0.0-20191203121021-c4c0b6d42ff4/go.mod h1:C1a7
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
 github.com/stretchr/testify v1.7.0 h1:nwc3DEeHmmLAfoZucVR881uASk0Mfjw8xYJ99tb5CcY=
 github.com/stretchr/testify v1.7.0/go.mod h1:6Fq8oRcR53rry900zMqJjRRixrwX3KX962/h/Wwjteg=
-github.com/tkrajina/gpxgo v1.1.2 h1:il6rjS6IGm3yqa/yr7+fKBlF3ufWDEPZrYi/kxI1Jv0=
 github.com/tkrajina/gpxgo v1.1.2/go.mod h1:795sjVRFo5wWyN6oOZp0RYienGGBJjpAlgOz2nCngA0=
 github.com/tkrajina/gpxgo v1.2.0 h1:WzEMWKmsYZm6Nqvro4FibSA9p8kMph5u7nfaNWLGtqY=
 github.com/tkrajina/gpxgo v1.2.0/go.mod h1:795sjVRFo5wWyN6oOZp0RYienGGBJjpAlgOz2nCngA0=

@@ -31,6 +31,7 @@ func (l *logging) open(id int) {
 		l.window = ui.GetWindow("logging_window")
 		l.window.HideOnDelete()
 	}
+	l.loadCombos()
 	l.window.ShowAll()
 
 	btn := ui.GetButton("logging_save_button")
@@ -112,10 +113,8 @@ func (l *logging) edit() bool {
 // 		// glib.IdleAdd(func() { ui.GetTextView("logging_remarks").GrabFocus() })
 // 		// ui.GetTextView("logging_remarks").GrabFocus()
 // 	}
-
 // 	return gdk.GDK_EVENT_STOP
 // }
-
 // func (l *logging) create() bool {
 // 	tv := ui.GetTreeView("mwlist_tv")
 // 	s, err := tv.GetSelection()
@@ -135,7 +134,6 @@ func (l *logging) edit() bool {
 // 	e := ui.GetEntry("logging_station")
 // 	e.SetText(id.(string))
 // 	l.validateCall(e)
-
 // 	return true
 // }
 
@@ -160,9 +158,9 @@ func (l *logging) clear() {
 	ui.GetEntry("logging_state").SetText("")
 	ui.GetEntry("logging_country").SetText("")
 	ui.GetEntry("logging_signal").SetText("")
-	ui.GetComboBox("logging_format").SetActive(0)
 	ui.GetTextBuffer("logging_remarks_buffer").SetText("")
-	// ToDo: setup configuration for default receiver and antenna
+	// ToDo: setup configuration for default format, receiver and antenna
+	ui.GetComboBox("logging_format").SetActive(0)
 	ui.GetComboBox("logging_receiver").SetActive(0)
 	ui.GetComboBox("logging_antenna").SetActive(0)
 
@@ -212,11 +210,11 @@ func (l *logging) save(win *gtk.Window, id int) {
 		var err error
 
 		if e, ok := w.(*gtk.Entry); ok {
-			_ = glib.IdleAdd(func() { e.GrabFocus() })
+			glib.IdleAdd(func() { e.GrabFocus() })
 		} else if e, ok := w.(*gtk.TextView); ok {
-			_ = glib.IdleAdd(func() { e.GrabFocus() })
+			glib.IdleAdd(func() { e.GrabFocus() })
 		} else if e, ok := w.(*gtk.ComboBox); ok {
-			_ = glib.IdleAdd(func() { e.GrabFocus() })
+			glib.IdleAdd(func() { e.GrabFocus() })
 		} else {
 			log.Println("Unconfigured widget type in logging.save()")
 		}
@@ -254,7 +252,18 @@ func (l *logging) save(win *gtk.Window, id int) {
 		return
 	}
 
-	l.rec.Format = ui.GetComboBox("logging_format").GetActive()
+	// l.rec.Format,_ = strconv.Atoi(ui.GetComboBox("logging_format").GetActiveID())
+	fmt, _ := ui.GetEntry("logging_format_entry").GetText()
+	l.rec.Format = db.GetFormatIDByName(fmt)
+	log.Printf("Format saved as %d", l.rec.Format)
+	if l.rec.Format == -1 {
+		if len(fmt) < 1 {
+			f(ui.GetComboBox("logging_format"), "Format cannot be blank")
+		} else {
+			f(ui.GetComboBox("logging_format"), "Invalid format")
+		}
+		return
+	}
 
 	lrb := ui.GetTextBuffer("logging_remarks_buffer")
 	s, e := lrb.GetBounds()
@@ -264,15 +273,27 @@ func (l *logging) save(win *gtk.Window, id int) {
 		return
 	}
 
-	l.rec.Receiver = ui.GetComboBox("logging_receiver").GetActive()
+	rcvr, _ := ui.GetEntry("logging_receiver_entry").GetText()
+	l.rec.Receiver = db.GetReceiverIDByName(rcvr)
+	log.Printf("receiver saved as %d", l.rec.Receiver)
 	if l.rec.Receiver == -1 {
-		f(ui.GetComboBox("logging_receiver"), "Receiver field cannot be blank")
+		if len(rcvr) < 1 {
+			f(ui.GetComboBox("logging_receiver"), "Receiver cannot be blank")
+		} else {
+			f(ui.GetComboBox("logging_receiver"), "Invalid receiver")
+		}
 		return
 	}
 
-	l.rec.Antenna = ui.GetComboBox("logging_antenna").GetActive()
+	ant, _ := ui.GetEntry("logging_antenna_entry").GetText()
+	l.rec.Antenna = db.GetAntennaIDByName(ant)
+	log.Printf("antenna saved as %d", l.rec.Receiver)
 	if l.rec.Antenna == -1 {
-		f(ui.GetComboBox("logging_antenna"), "Antenna field cannot be blank")
+		if len(ant) < 1 {
+			f(ui.GetComboBox("logging_antenna"), "Antenna cannot be blank")
+		} else {
+			f(ui.GetComboBox("logging_antenna"), "Invalid antenna")
+		}
 		return
 	}
 
@@ -309,7 +330,6 @@ func (l *logging) save(win *gtk.Window, id int) {
 }
 
 func (l *logging) load(id int) {
-
 	rec, err := db.GetLoggingByID(id)
 	if err != nil {
 		log.Println(err.Error())
@@ -323,10 +343,12 @@ func (l *logging) load(id int) {
 	ui.GetEntry("logging_state").SetText(rec.State)
 	ui.GetEntry("logging_country").SetText(rec.Country)
 	ui.GetEntry("logging_signal").SetText(rec.Signal)
-	ui.GetComboBox("logging_format").SetActive(rec.Format)
+	ui.GetComboBox("logging_format").SetActive(getComboIndex("format_ls", rec.Format))
 	ui.GetTextBuffer("logging_remarks_buffer").SetText(rec.Remarks)
-	ui.GetComboBox("logging_receiver").SetActive(rec.Receiver)
-	ui.GetComboBox("logging_antenna").SetActive(rec.Antenna)
+	ui.GetComboBox("logging_receiver").SetActive(getComboIndex("receiver_ls", rec.Receiver))
+	// log.Printf("receiver loaded as %d", rec.Receiver)
+	ui.GetComboBox("logging_antenna").SetActive(getComboIndex("antenna_ls", rec.Antenna))
+	// log.Printf("antenna loaded as %d", rec.Antenna)
 	ui.GetEntry("logging_distance").SetText(fmt.Sprintf("%.0f", rec.Distance))
 	ui.GetEntry("logging_bearing").SetText(fmt.Sprintf("%.0f", rec.Bearing))
 	ui.GetEntry("logging_latitude").SetText(fmt.Sprintf("%.2f", rec.Latitude))
@@ -334,6 +356,38 @@ func (l *logging) load(id int) {
 	ui.GetEntry("logging_sunstatus").SetText(rec.Sunstatus)
 
 	ui.GetEntry("logging_date").GrabFocus()
+}
+
+// GetComboIndex returns a liststore row for given id
+func getComboIndex(ln string, id int) int {
+	ls := ui.GetListStore(ln)
+
+	iter, ok := ls.ToTreeModel().GetIterFirst()
+	if !ok {
+		log.Println("No match found")
+	}
+	for index := 0; iter != nil; index++ {
+		v, err := ls.GetValue(iter, 0)
+		if err != nil {
+			log.Printf("getComboIndex - unable to GetValue for combo box for %s", ln)
+		}
+		s, err := v.GoValue()
+		if err != nil {
+			log.Printf("getComboIndex - unable to GoValue for combo box for %s", ln)
+		}
+		i, err := strconv.Atoi(s.(string))
+		if err != nil {
+			log.Printf("getComboIndex - unable to convert string to int for %s", s.(string))
+		}
+		if i == id {
+			return index
+		}
+		if ls.IterNext(iter) == false {
+			break
+		}
+	}
+	log.Printf("getComboIndex combo type not found in index of %s", ln)
+	return -1
 }
 
 func (l *logging) validateDate(c *gtk.Entry) bool {
@@ -435,4 +489,88 @@ func (l *logging) validateCall(c *gtk.Entry) bool {
 
 	_ = glib.IdleAdd(func() { c.GrabFocus() })
 	return gdk.GDK_EVENT_PROPAGATE
+}
+
+func (l *logging) loadCombos() {
+	l.loadReceivers()
+	l.loadAntennas()
+	l.loadFormats()
+}
+
+func (l *logging) loadReceivers() {
+	ls := ui.GetListStore("receiver_ls")
+	ls.Clear()
+	rows := db.GetAllReceivers()
+	// if err != nil {
+	// 	log.Println(err.Error())
+	// }
+	defer rows.Close()
+
+	var id int
+	var name string
+	var iter *gtk.TreeIter
+	for rows.Next() {
+		err := rows.Scan(&id, &name)
+		if err != nil {
+			log.Println(err.Error())
+		}
+		// iter = ls.Append()
+		col := []int{0, 1}
+		var val []interface{}
+		val = append(val, strconv.Itoa(id), name)
+		// log.Println(id, name)
+		if err = ls.InsertWithValues(iter, 0, col, val); err != nil {
+			log.Println(err.Error())
+		}
+	}
+}
+
+func (l *logging) loadAntennas() {
+	ls := ui.GetListStore("antenna_ls")
+	ls.Clear()
+	rows := db.GetAllAntennas()
+	defer rows.Close()
+
+	var id int
+	var name string
+	var iter *gtk.TreeIter
+	for rows.Next() {
+		err := rows.Scan(&id, &name)
+		if err != nil {
+			log.Println(err.Error())
+		}
+		// iter = ls.Append()
+		col := []int{0, 1}
+		var val []interface{}
+		val = append(val, id, name)
+		// log.Println(id, name)
+		if err = ls.InsertWithValues(iter, 0, col, val); err != nil {
+			log.Println(err.Error())
+		}
+	}
+}
+
+func (l *logging) loadFormats() {
+	ls := ui.GetListStore("format_ls")
+	ls.Clear()
+	rows := db.GetAllFormats()
+	defer rows.Close()
+
+	var id int
+	var name string
+	var iter *gtk.TreeIter
+	for rows.Next() {
+		err := rows.Scan(&id, &name)
+		if err != nil {
+			log.Println(err.Error())
+		}
+		// iter = ls.Append()
+		col := []int{0, 1}
+		var val []interface{}
+		val = append(val, strconv.Itoa(id), name)
+		// log.Println(id, name)
+		if err = ls.InsertWithValues(iter, 0, col, val); err != nil {
+			log.Println(err.Error())
+		}
+	}
 }

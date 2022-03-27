@@ -82,9 +82,9 @@ func main() {
 			"on_logging_time_focus_out_event":    func(e *gtk.Entry) { le.validateTime(e) },
 			"on_logging_station_focus_out_event": func(e *gtk.Entry) { le.validateCall(e) },
 			"on_logging_cancel_button_clicked":   func(_ *gtk.Button) { le.window.Close() },
+			// "on_receiver_completion_match_selected": func(m *gtk.ListStore, i *gtk.TreeIter) { ms(m, i) },
 
 			"on_notebook_switch_page": func(_ *gtk.Notebook, _ *gtk.Widget, pn int) { notebookSwitcher(pn) },
-			// "on_logbook_tree_row_activated":    func(tv *gtk.TreeView) { onLogbookTreeRowActivated(tv) },
 
 			// *** Menu Items ***
 			"on_menu_logbook_clicked":      func() { showLogbook() },
@@ -113,6 +113,11 @@ func main() {
 			"on_maps_viewport_button_release_event": func(_ *glib.Object, e *gdk.Event) { mt.click(e) },
 
 			// "click":     func() { log.Println("I was clicked") },
+
+			// "changed": func() bool {
+			// 	log.Println("changed")
+			// 	return false
+			// },
 		}
 		ui.ConnectSignals(signals)
 
@@ -128,6 +133,20 @@ func main() {
 	// Launch the application
 	os.Exit(application.Run(os.Args))
 }
+
+// func ms(m *gtk.ListStore, i *gtk.TreeIter) {
+// 	rcvr, err := m.GetValue(i, 1)
+// 	if err != nil {
+// 		log.Println(err.Error())
+// 		return
+// 	}
+// 	str, err := rcvr.GetString()
+// 	if err != nil {
+// 		log.Println(err.Error())
+// 		return
+// 	}
+// 	ui.GetEntry("logging_receiver_entry").SetText(str)
+// }
 
 func loadCSS() {
 	var cssProv *gtk.CssProvider

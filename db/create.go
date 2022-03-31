@@ -12,7 +12,7 @@ func createDDL() error {
 	if err := createAudioTable(); err != nil {
 		return err
 	}
-	if err := createChannelTable(); err != nil {
+	if err := createChannelsTable(); err != nil {
 		return err
 	}
 	if err := createMWListTable(); err != nil {
@@ -46,31 +46,29 @@ func createMWListTable() error {
 
 func createLoggingTable() error {
 	s := `CREATE TABLE IF NOT EXISTS "loggings" ( 
-			"id" INTEGER NOT NULL UNIQUE, 
-			"date" TEXT NOT NULL, 
-			"time" TEXT NOT NULL, 
-			"station" TEXT NOT NULL, 
-			"frequency" TEXT NOT NULL, 
-			"city" TEXT NOT NULL, 
-			"state" TEXT NOT NULL, 
-			"country" TEXT NOT NULL, 
-			"signal" TEXT NOT NULL, 
-			"format" INTEGER, 
-			"remarks" BLOB NOT NULL, 
-			"receiver" INTEGER NOT NULL, 
-			"antenna" INTEGER NOT NULL, 
-			"latitude" REAL, 
-			"longitude" REAL, 
-			"distance" REAL, 
-			"bearing" REAL, 
-			"sunstatus" TEXT, 
-			PRIMARY KEY("ID") );`
+					"id" INTEGER NOT NULL UNIQUE, 
+					"date" TEXT NOT NULL, 
+					"time" TEXT NOT NULL, 
+					"station" TEXT NOT NULL, 
+					"frequency" TEXT NOT NULL, 
+					"city" TEXT NOT NULL, 
+					"state" TEXT NOT NULL, 
+					"country" TEXT NOT NULL, 
+					"signal" TEXT NOT NULL, 
+					"format" INTEGER, 
+					"remarks" BLOB NOT NULL, 
+					"receiver" INTEGER NOT NULL, 
+					"antenna" INTEGER NOT NULL, 
+					"latitude" REAL, 
+					"longitude" REAL, 
+					"distance" REAL, 
+					"bearing" REAL, 
+					"sunstatus" TEXT, 
+					PRIMARY KEY("ID") 
+				);`
 
 	err := createTable(s)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func createAudioTable() error {
@@ -79,13 +77,11 @@ func createAudioTable() error {
 				"sound"	BLOB NOT NULL
 				)`
 	err := createTable(s)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
-func createChannelTable() error {
-	s := `CREATE TABLE IF NOT EXISTS "channel" (
+// createChannelsTable creates the Channels table
+func createChannelsTable() error {
+	s := `CREATE TABLE IF NOT EXISTS "channels" (
 			"id" 		INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
 			"frequency"	TEXT NOT NULL UNIQUE,
 			"class"		TEXT,
@@ -93,46 +89,47 @@ func createChannelTable() error {
 			"nighttime"	TEXT
 			)`
 	err := createTable(s)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
-func createSelectionsTable() error {
-	s := `CREATE TABLE "selections" (
-		"Type"	TEXT NOT NULL,
-		"ID"	INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE,
-		"Value"	TEXT NOT NULL UNIQUE
-)`
+// createReceiversTable creates the Receivers table
+func createReceiversTable() error {
+	s := `CREATE TABLE IF NOT EXISTS "receivers" (
+					"ID"	INTEGER NOT NULL UNIQUE,
+					"Name"	TEXT NOT NULL UNIQUE,	PRIMARY KEY("ID" AUTOINCREMENT)
+				)`
 	err := createTable(s)
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
+// createAntennasTable creates the Antennas table
+func createAntennasTable() error {
+	s := `CREATE TABLE IN NOT EXITST "antennas" (
+					"ID"	INTEGER NOT NULL UNIQUE,
+					"Name"	TEXT NOT NULL UNIQUE,	PRIMARY KEY("ID" AUTOINCREMENT)
+				)`
+	err := createTable(s)
+	return err
+}
+
+//createTable create the table specified in the ddl
 func createTable(ddl string) error {
 	stmt, err := sqlDb.Prepare(ddl)
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	if _, err = stmt.Exec(); err != nil {
-		return err
-	}
-	return nil
+	_, err = stmt.Exec()
+	return err
 }
 
-// TruncateTable truncates the named table
+// truncateTable truncates the named table
 func truncateTable(t string) error {
 	stmt, err := sqlDb.Prepare(fmt.Sprintf("delete from %s", t))
 	if err != nil {
 		return err
 	}
 	defer stmt.Close()
-	if _, err = stmt.Exec(); err != nil {
-		return err
-	}
-	return nil
+	_, err = stmt.Exec()
+	return err
 }

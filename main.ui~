@@ -46,10 +46,19 @@ Author: Ken Boyd (Greynerd on github.com)
     <property name="can_focus">False</property>
     <property name="stock">gtk-edit</property>
   </object>
+  <object class="GtkHeaderBar">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="title" translatable="yes">MWLog 0.1</property>
+    <property name="show_close_button">True</property>
+    <child>
+      <placeholder/>
+    </child>
+  </object>
   <object class="GtkListStore" id="antenna_ls">
     <columns>
       <!-- column-name ID -->
-      <column type="guint64"/>
+      <column type="gchararray"/>
       <!-- column-name Name -->
       <column type="gchararray"/>
     </columns>
@@ -107,9 +116,15 @@ Author: Ken Boyd (Greynerd on github.com)
       <column type="gchararray"/>
       <!-- column-name Location -->
       <column type="gchararray"/>
-      <!-- column-name Format -->
+      <!-- column-name Power -->
+      <column type="gchararray"/>
+      <!-- column-name Distance -->
+      <column type="gchararray"/>
+      <!-- column-name Bearing -->
       <column type="gchararray"/>
       <!-- column-name First -->
+      <column type="gchararray"/>
+      <!-- column-name Last -->
       <column type="gchararray"/>
       <!-- column-name Times -->
       <column type="gchararray"/>
@@ -119,7 +134,7 @@ Author: Ken Boyd (Greynerd on github.com)
   <object class="GtkListStore" id="format_ls">
     <columns>
       <!-- column-name ID -->
-      <column type="gint"/>
+      <column type="gchararray"/>
       <!-- column-name format -->
       <column type="gchararray"/>
     </columns>
@@ -299,15 +314,7 @@ Author: Ken Boyd (Greynerd on github.com)
     <property name="default_width">800</property>
     <property name="default_height">600</property>
     <child type="titlebar">
-      <object class="GtkHeaderBar">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-        <property name="title" translatable="yes">MWLog 0.1</property>
-        <property name="show_close_button">True</property>
-        <child>
-          <placeholder/>
-        </child>
-      </object>
+      <placeholder/>
     </child>
     <child>
       <object class="GtkBox">
@@ -788,6 +795,7 @@ Author: Ken Boyd (Greynerd on github.com)
                       <object class="GtkFrame">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="margin_right">3</property>
                         <property name="margin_start">10</property>
                         <property name="margin_end">10</property>
                         <property name="margin_top">10</property>
@@ -795,9 +803,10 @@ Author: Ken Boyd (Greynerd on github.com)
                         <property name="shadow_type">etched-out</property>
                         <child>
                           <object class="GtkTextView" id="chan_daytime">
-                            <property name="height_request">50</property>
+                            <property name="height_request">40</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="margin_right">3</property>
                             <property name="hexpand">True</property>
                             <property name="left_margin">3</property>
                             <property name="right_margin">3</property>
@@ -825,15 +834,17 @@ Author: Ken Boyd (Greynerd on github.com)
                       <object class="GtkFrame">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="margin_right">3</property>
                         <property name="margin_start">10</property>
                         <property name="margin_end">10</property>
                         <property name="margin_top">10</property>
                         <property name="label_xalign">0.0099999997764825821</property>
                         <child>
                           <object class="GtkTextView" id="chan_nighttime">
-                            <property name="height_request">100</property>
+                            <property name="height_request">50</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
+                            <property name="margin_right">3</property>
                             <property name="hexpand">True</property>
                             <property name="left_margin">3</property>
                             <property name="right_margin">3</property>
@@ -858,38 +869,10 @@ Author: Ken Boyd (Greynerd on github.com)
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButtonBox">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="layout_style">end</property>
-                        <child>
-                          <object class="GtkButton" id="chan_save">
-                            <property name="label" translatable="yes">Save</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">True</property>
-                            <property name="margin_end">10</property>
-                            <property name="margin_top">10</property>
-                            <property name="margin_bottom">10</property>
-                            <signal name="clicked" handler="on" swapped="no"/>
-                          </object>
-                          <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
-                            <property name="position">0</property>
-                          </packing>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">True</property>
-                        <property name="position">3</property>
-                      </packing>
-                    </child>
-                    <child>
                       <object class="GtkFrame">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <property name="margin_right">3</property>
                         <property name="margin_start">10</property>
                         <property name="margin_end">10</property>
                         <property name="margin_bottom">5</property>
@@ -905,12 +888,14 @@ Author: Ken Boyd (Greynerd on github.com)
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="model">chan_log_store</property>
+                                <property name="ubuntu_almost_fixed_height_mode">True</property>
                                 <child internal-child="selection">
                                   <object class="GtkTreeSelection"/>
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn">
                                     <property name="visible">False</property>
+                                    <property name="fixed_width">0</property>
                                     <property name="title" translatable="yes">id</property>
                                     <child>
                                       <object class="GtkCellRendererText">
@@ -924,6 +909,8 @@ Author: Ken Boyd (Greynerd on github.com)
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn">
+                                    <property name="resizable">True</property>
+                                    <property name="min_width">40</property>
                                     <property name="title" translatable="yes">Station</property>
                                     <child>
                                       <object class="GtkCellRendererText"/>
@@ -935,6 +922,7 @@ Author: Ken Boyd (Greynerd on github.com)
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn">
+                                    <property name="resizable">True</property>
                                     <property name="min_width">194</property>
                                     <property name="title" translatable="yes">Location</property>
                                     <child>
@@ -947,8 +935,10 @@ Author: Ken Boyd (Greynerd on github.com)
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn">
-                                    <property name="min_width">144</property>
-                                    <property name="title" translatable="yes">Format</property>
+                                    <property name="resizable">True</property>
+                                    <property name="sizing">fixed</property>
+                                    <property name="fixed_width">53</property>
+                                    <property name="title" translatable="yes">Power</property>
                                     <child>
                                       <object class="GtkCellRendererText"/>
                                       <attributes>
@@ -959,7 +949,8 @@ Author: Ken Boyd (Greynerd on github.com)
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn">
-                                    <property name="title" translatable="yes">First Heard</property>
+                                    <property name="resizable">True</property>
+                                    <property name="title" translatable="yes">Distance</property>
                                     <child>
                                       <object class="GtkCellRendererText"/>
                                       <attributes>
@@ -970,11 +961,47 @@ Author: Ken Boyd (Greynerd on github.com)
                                 </child>
                                 <child>
                                   <object class="GtkTreeViewColumn">
-                                    <property name="title" translatable="yes">Times Logged</property>
+                                    <property name="resizable">True</property>
+                                    <property name="title" translatable="yes">Bearing</property>
                                     <child>
                                       <object class="GtkCellRendererText"/>
                                       <attributes>
                                         <attribute name="text">5</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn">
+                                    <property name="resizable">True</property>
+                                    <property name="title" translatable="yes">First Heard</property>
+                                    <child>
+                                      <object class="GtkCellRendererText"/>
+                                      <attributes>
+                                        <attribute name="text">6</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn">
+                                    <property name="title" translatable="yes">Last Heard</property>
+                                    <child>
+                                      <object class="GtkCellRendererText"/>
+                                      <attributes>
+                                        <attribute name="text">7</attribute>
+                                      </attributes>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkTreeViewColumn">
+                                    <property name="resizable">True</property>
+                                    <property name="title" translatable="yes">Count</property>
+                                    <child>
+                                      <object class="GtkCellRendererText"/>
+                                      <attributes>
+                                        <attribute name="text">8</attribute>
                                       </attributes>
                                     </child>
                                   </object>
@@ -989,6 +1016,36 @@ Author: Ken Boyd (Greynerd on github.com)
                             <property name="can_focus">False</property>
                             <property name="label" translatable="yes">Logged Stations</property>
                           </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkButtonBox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="layout_style">end</property>
+                        <child>
+                          <object class="GtkButton" id="chan_save">
+                            <property name="label" translatable="yes">Save</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">True</property>
+                            <property name="margin_right">3</property>
+                            <property name="margin_end">10</property>
+                            <property name="margin_top">10</property>
+                            <property name="margin_bottom">10</property>
+                            <signal name="clicked" handler="on" swapped="no"/>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
                       </object>
                       <packing>
@@ -1415,7 +1472,7 @@ Author: Ken Boyd (Greynerd on github.com)
   <object class="GtkListStore" id="receiver_ls">
     <columns>
       <!-- column-name ID -->
-      <column type="guint64"/>
+      <column type="gchararray"/>
       <!-- column-name Name -->
       <column type="gchararray"/>
     </columns>
@@ -1702,97 +1759,6 @@ Author: Ken Boyd (Greynerd on github.com)
               </packing>
             </child>
             <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">end</property>
-                <property name="label" translatable="yes">Format:</property>
-                <property name="justify">right</property>
-                <property name="width_chars">10</property>
-                <property name="xalign">0.89999997615814209</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">6</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="height_request">61</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">end</property>
-                <property name="valign">start</property>
-                <property name="label" translatable="yes">Remarks:</property>
-                <property name="justify">right</property>
-                <property name="width_chars">10</property>
-                <property name="xalign">0.9100000262260437</property>
-                <property name="yalign">0.10000000149011612</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">7</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">end</property>
-                <property name="label" translatable="yes">Receiver:</property>
-                <property name="width_chars">10</property>
-                <property name="xalign">0.89999997615814209</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">8</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="halign">end</property>
-                <property name="label" translatable="yes">Antenna:</property>
-                <property name="width_chars">10</property>
-                <property name="xalign">0.89999997615814209</property>
-              </object>
-              <packing>
-                <property name="left_attach">0</property>
-                <property name="top_attach">9</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkComboBox" id="logging_antenna">
-                <property name="width_request">250</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="margin_top">2</property>
-                <property name="model">antenna_ls</property>
-                <property name="active">0</property>
-                <property name="has_entry">True</property>
-                <property name="entry_text_column">1</property>
-                <property name="id_column">0</property>
-                <child>
-                  <object class="GtkCellRendererText"/>
-                  <attributes>
-                    <attribute name="text">1</attribute>
-                  </attributes>
-                </child>
-                <child internal-child="entry">
-                  <object class="GtkEntry" id="logging_antenna_entry">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="completion">antenna_completion</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">9</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkGrid">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
@@ -1991,35 +1957,6 @@ Author: Ken Boyd (Greynerd on github.com)
               </packing>
             </child>
             <child>
-              <object class="GtkComboBox" id="logging_format">
-                <property name="name">logging_format</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="model">format_ls</property>
-                <property name="has_entry">True</property>
-                <property name="entry_text_column">1</property>
-                <property name="id_column">0</property>
-                <child>
-                  <object class="GtkCellRendererText"/>
-                  <attributes>
-                    <attribute name="text">1</attribute>
-                  </attributes>
-                </child>
-                <child internal-child="entry">
-                  <object class="GtkEntry" id="logging_format_entry">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="events">GDK_EXPOSURE_MASK | GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_MOTION_MASK | GDK_BUTTON1_MOTION_MASK | GDK_BUTTON2_MOTION_MASK | GDK_BUTTON3_MOTION_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_FOCUS_CHANGE_MASK | GDK_STRUCTURE_MASK | GDK_PROPERTY_CHANGE_MASK | GDK_VISIBILITY_NOTIFY_MASK | GDK_PROXIMITY_IN_MASK | GDK_PROXIMITY_OUT_MASK | GDK_SUBSTRUCTURE_MASK | GDK_SCROLL_MASK | GDK_TOUCH_MASK | GDK_SMOOTH_SCROLL_MASK | GDK_TOUCHPAD_GESTURE_MASK | GDK_TABLET_PAD_MASK</property>
-                    <property name="completion">format_completion</property>
-                  </object>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="top_attach">6</property>
-              </packing>
-            </child>
-            <child>
               <object class="GtkTextView" id="logging_remarks">
                 <property name="name">logging_remarks</property>
                 <property name="height_request">120</property>
@@ -2042,8 +1979,39 @@ Author: Ken Boyd (Greynerd on github.com)
               </object>
               <packing>
                 <property name="left_attach">1</property>
+                <property name="top_attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="height_request">61</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">end</property>
+                <property name="valign">start</property>
+                <property name="label" translatable="yes">Remarks:</property>
+                <property name="justify">right</property>
+                <property name="width_chars">10</property>
+                <property name="xalign">0.9100000262260437</property>
+                <property name="yalign">0.10000000149011612</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
+                <property name="top_attach">6</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">end</property>
+                <property name="label" translatable="yes">Receiver:</property>
+                <property name="width_chars">10</property>
+                <property name="xalign">0.89999997615814209</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
                 <property name="top_attach">7</property>
-                <property name="width">5</property>
               </packing>
             </child>
             <child>
@@ -2074,6 +2042,50 @@ Author: Ken Boyd (Greynerd on github.com)
               </object>
               <packing>
                 <property name="left_attach">1</property>
+                <property name="top_attach">7</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="logging_antenna">
+                <property name="width_request">250</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="margin_top">2</property>
+                <property name="model">antenna_ls</property>
+                <property name="active">0</property>
+                <property name="has_entry">True</property>
+                <property name="entry_text_column">1</property>
+                <property name="id_column">0</property>
+                <child>
+                  <object class="GtkCellRendererText"/>
+                  <attributes>
+                    <attribute name="text">1</attribute>
+                  </attributes>
+                </child>
+                <child internal-child="entry">
+                  <object class="GtkEntry" id="logging_antenna_entry">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="completion">antenna_completion</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="top_attach">8</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="halign">end</property>
+                <property name="label" translatable="yes">Antenna:</property>
+                <property name="width_chars">10</property>
+                <property name="xalign">0.89999997615814209</property>
+              </object>
+              <packing>
+                <property name="left_attach">0</property>
                 <property name="top_attach">8</property>
               </packing>
             </child>

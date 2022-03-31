@@ -91,9 +91,9 @@ func main() {
 			"on_menu_add_logging_clicked":  func() { le.open(0) },
 			"on_menu_edit_logging_clicked": func() { le.edit() },
 
-			// *** Channel Tab ***
-			"on_chan_freq_sel_changed": func(ts *gtk.TreeSelection) { ch.loadChannel(ts) },
-			"on_chan_save_clicked":     func() { ch.saveChannel() },
+			// *** Channels Tab ***
+			"on_chan_freq_sel_changed": func(ts *gtk.TreeSelection) { ch.loadChannels(ts) },
+			"on_chan_save_clicked":     func() { ch.saveChannels() },
 
 			// *** Logbook Tab ***
 			"on_lb_tree_selection_changed":       func(ts *gtk.TreeSelection) { displayRow(ts) },

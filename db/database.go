@@ -99,7 +99,7 @@ func GetMWListByCall(station string) *sql.Rows {
 func GetFormatByID(id int) string {
 	var value string
 
-	readSQL := "SELECT value FROM formats WHERE ID = ?"
+	readSQL := "SELECT Name FROM formats WHERE ID = ?"
 
 	rows, err := sqlDb.Query(readSQL, id)
 	if err != nil {
@@ -337,12 +337,14 @@ func GetLogBookStore() (*sql.Rows, error) {
 // GetLoggingForFreq fills the ListStore for the channels logging section
 func GetLoggingForFreq(freq string) (*sql.Rows, error) {
 
-	rows, err := sqlDb.Query(`select id, station, city, state, country, format, 
-       										min(date) as firstheard, count(*) as times
-								from loggings 
-								where frequency = ?
-								group by station
-								order by station desc`, freq)
+	rows, err := sqlDb.Query(`select l.id, l.station, l.city, l.state, l.country, 
+													m.power_day, m.power_night, m.distance, m.bearing,
+       										min(l.date) as firstheard, max(l.date) as lastheard, count(*) as times
+								from loggings l, mwlist m
+								where l.station = m.station 
+								  and l.frequency = ?
+								group by l.station
+								order by l.station desc`, freq)
 	if err != nil {
 		log.Println(err.Error())
 		return nil, err
@@ -401,11 +403,11 @@ func GetLoggingLocations() *sql.Rows {
 	return rows
 }
 
-// GetChannel get the channel info
-func GetChannel(freq string) (*Channel, error) {
+// GetChannels get the channels info
+func GetChannels(freq string) (*Channel, error) {
 	var ch Channel
 
-	q := "select id, class, daytime, nighttime from channel where frequency = ?"
+	q := "select id, class, daytime, nighttime from channels where frequency = ?"
 	rows, err := sqlDb.Query(q, freq)
 	if err != nil {
 		return nil, err
@@ -429,10 +431,10 @@ func GetChannel(freq string) (*Channel, error) {
 	return &ch, nil
 }
 
-// SaveChannel saves the channel info
-func SaveChannel(ch *Channel) error {
+// SaveChannels saves the channels info
+func SaveChannels(ch *Channel) error {
 	if ch.ID < 1 {
-		q := `insert into channel (frequency, class, daytime, nighttime) 
+		q := `insert into channels (frequency, class, daytime, nighttime) 
 				values(?,?,?,?)`
 		stmt, err := sqlDb.Prepare(q)
 		if err != nil {
@@ -444,7 +446,7 @@ func SaveChannel(ch *Channel) error {
 			return err
 		}
 	} else {
-		q := "update channel set frequency = ?, class = ?, daytime = ?, nighttime = ? where id = ?"
+		q := "update channels set frequency = ?, class = ?, daytime = ?, nighttime = ? where id = ?"
 		stmt, err := sqlDb.Prepare(q)
 		if err != nil {
 			return err

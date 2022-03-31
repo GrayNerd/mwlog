@@ -33,7 +33,7 @@ func (ct *chanTab) buildFreqList() {
 	}
 }
 
-func (ct *chanTab) loadChannel(ts *gtk.TreeSelection) {
+func (ct *chanTab) loadChannels(ts *gtk.TreeSelection) {
 	model, iter, ok := ts.GetSelected()
 	if !ok {
 		log.Println("Unable to GetSelected in logbookEditSelected")
@@ -45,7 +45,7 @@ func (ct *chanTab) loadChannel(ts *gtk.TreeSelection) {
 		log.Println(err.Error())
 	}
 	f := strings.TrimSpace(freq.(string))
-	ch, err := db.GetChannel(f)
+	ch, err := db.GetChannels(f)
 	if err != nil {
 		ui.GetLabel("chan_id").SetText("0")
 		ui.GetLabel("chan_freq").SetText(f)
@@ -59,10 +59,10 @@ func (ct *chanTab) loadChannel(ts *gtk.TreeSelection) {
 		ui.GetTextBuffer("chan_daytime_buffer").SetText(ch.Daytime)
 		ui.GetTextBuffer("chan_nighttime_buffer").SetText(ch.Nighttime)
 	}
-	loadChannelLoggings(f)
+	loadChannelsLoggings(f)
 }
 
-func (ct *chanTab) saveChannel() {
+func (ct *chanTab) saveChannels() {
 	var ch db.Channel
 
 	id, _ := ui.GetLabel("chan_id").GetText()
@@ -78,12 +78,12 @@ func (ct *chanTab) saveChannel() {
 	s, e = night.GetBounds()
 	ch.Nighttime, _ = night.GetText(s, e, false)
 
-	if err := db.SaveChannel(&ch); err != nil {
+	if err := db.SaveChannels(&ch); err != nil {
 		log.Println(err.Error())
 	}
 }
 
-func loadChannelLoggings(freq string) {
+func loadChannelsLoggings(freq string) {
 	ls := ui.GetTreeStore("chan_log_store")
 	ls.Clear()
 
@@ -93,20 +93,22 @@ func loadChannelLoggings(freq string) {
 	}
 	defer rows.Close()
 
-	var id, format int
-	var station, city, state, country, firstHeard, timesHeard string
+	var id int
+	var station, city, state, country, firstHeard, lastHeard, timesHeard string
+	var powerDay, powerNight, Distance, Bearing string
 	for rows.Next() {
-		err := rows.Scan(&id, &station, &city, &state, &country, &format, &firstHeard, &timesHeard)
+		err := rows.Scan(&id, &station, &city, &state, &country, &powerDay, &powerNight, 
+										 &Distance, &Bearing, &firstHeard, &lastHeard, &timesHeard)
 		if err != nil {
 			log.Println(err.Error())
 			continue
 		}
 		var iter *gtk.TreeIter
 		//ls.Append(iter)
-		col := []int{0, 1, 2, 3, 4, 5}
+		col := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
 		var val []interface{}
 		val = append(val, id, station, fmt.Sprintf("%s, %s %s", city, state, country),
-			db.GetFormatByID(format), firstHeard, timesHeard)
+			powerDay, Distance, Bearing, firstHeard, lastHeard, timesHeard)
 		if err = ls.InsertWithValues(iter, nil, 0, col, val); err != nil {
 			log.Println(err.Error())
 		}
@@ -120,6 +122,6 @@ func channelsTBSetup() {
 	if s, _ := tv.GetSelection(); s == nil {
 		// set edit icon off
 	}
-	// turn edit icon on 
+	// turn edit icon on
 	b.SetSensitive(true)
 }

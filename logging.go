@@ -160,7 +160,7 @@ func (l *logging) clear() {
 	ui.GetEntry("logging_signal").SetText("")
 	ui.GetTextBuffer("logging_remarks_buffer").SetText("")
 	// ToDo: setup configuration for default format, receiver and antenna
-	ui.GetComboBox("logging_format").SetActive(0)
+	// ui.GetComboBox("logging_format").SetActive(0)
 	ui.GetComboBox("logging_receiver").SetActive(0)
 	ui.GetComboBox("logging_antenna").SetActive(0)
 
@@ -252,18 +252,18 @@ func (l *logging) save(win *gtk.Window, id int) {
 		return
 	}
 
-	// l.rec.Format,_ = strconv.Atoi(ui.GetComboBox("logging_format").GetActiveID())
-	fmt, _ := ui.GetEntry("logging_format_entry").GetText()
-	l.rec.Format = db.GetFormatIDByName(fmt)
-	log.Printf("Format saved as %d", l.rec.Format)
-	if l.rec.Format == -1 {
-		if len(fmt) < 1 {
-			f(ui.GetComboBox("logging_format"), "Format cannot be blank")
-		} else {
-			f(ui.GetComboBox("logging_format"), "Invalid format")
-		}
-		return
-	}
+	// // l.rec.Format,_ = strconv.Atoi(ui.GetComboBox("logging_format").GetActiveID())
+	// fmt, _ := ui.GetEntry("logging_format_entry").GetText()
+	// l.rec.Format = db.GetFormatIDByName(fmt)
+	// log.Printf("Format saved as %d", l.rec.Format)
+	// if l.rec.Format == -1 {
+	// 	if len(fmt) < 1 {
+	// 		f(ui.GetComboBox("logging_format"), "Format cannot be blank")
+	// 	} else {
+	// 		f(ui.GetComboBox("logging_format"), "Invalid format")
+	// 	}
+	// 	return
+	// }
 
 	lrb := ui.GetTextBuffer("logging_remarks_buffer")
 	s, e := lrb.GetBounds()
@@ -343,7 +343,7 @@ func (l *logging) load(id int) {
 	ui.GetEntry("logging_state").SetText(rec.State)
 	ui.GetEntry("logging_country").SetText(rec.Country)
 	ui.GetEntry("logging_signal").SetText(rec.Signal)
-	ui.GetComboBox("logging_format").SetActive(getComboIndex("format_ls", rec.Format))
+	// ui.GetComboBox("logging_format").SetActive(getComboIndex("format_ls", rec.Format))
 	ui.GetTextBuffer("logging_remarks_buffer").SetText(rec.Remarks)
 	ui.GetComboBox("logging_receiver").SetActive(getComboIndex("receiver_ls", rec.Receiver))
 	// log.Printf("receiver loaded as %d", rec.Receiver)
@@ -494,16 +494,14 @@ func (l *logging) validateCall(c *gtk.Entry) bool {
 func (l *logging) loadCombos() {
 	l.loadReceivers()
 	l.loadAntennas()
-	l.loadFormats()
+	// l.loadFormats()
 }
 
 func (l *logging) loadReceivers() {
 	ls := ui.GetListStore("receiver_ls")
 	ls.Clear()
+
 	rows := db.GetAllReceivers()
-	// if err != nil {
-	// 	log.Println(err.Error())
-	// }
 	defer rows.Close()
 
 	var id int
@@ -514,11 +512,10 @@ func (l *logging) loadReceivers() {
 		if err != nil {
 			log.Println(err.Error())
 		}
-		// iter = ls.Append()
 		col := []int{0, 1}
 		var val []interface{}
 		val = append(val, strconv.Itoa(id), name)
-		// log.Println(id, name)
+
 		if err = ls.InsertWithValues(iter, 0, col, val); err != nil {
 			log.Println(err.Error())
 		}
@@ -528,6 +525,7 @@ func (l *logging) loadReceivers() {
 func (l *logging) loadAntennas() {
 	ls := ui.GetListStore("antenna_ls")
 	ls.Clear()
+
 	rows := db.GetAllAntennas()
 	defer rows.Close()
 
@@ -539,38 +537,37 @@ func (l *logging) loadAntennas() {
 		if err != nil {
 			log.Println(err.Error())
 		}
-		// iter = ls.Append()
 		col := []int{0, 1}
 		var val []interface{}
 		val = append(val, id, name)
-		// log.Println(id, name)
+		
 		if err = ls.InsertWithValues(iter, 0, col, val); err != nil {
 			log.Println(err.Error())
 		}
 	}
 }
 
-func (l *logging) loadFormats() {
-	ls := ui.GetListStore("format_ls")
-	ls.Clear()
-	rows := db.GetAllFormats()
-	defer rows.Close()
+// func (l *logging) loadFormats() {
+// 	ls := ui.GetListStore("format_ls")
+// 	ls.Clear()
+// 	rows := db.GetAllFormats()
+// 	defer rows.Close()
 
-	var id int
-	var name string
-	var iter *gtk.TreeIter
-	for rows.Next() {
-		err := rows.Scan(&id, &name)
-		if err != nil {
-			log.Println(err.Error())
-		}
-		// iter = ls.Append()
-		col := []int{0, 1}
-		var val []interface{}
-		val = append(val, strconv.Itoa(id), name)
-		// log.Println(id, name)
-		if err = ls.InsertWithValues(iter, 0, col, val); err != nil {
-			log.Println(err.Error())
-		}
-	}
-}
+// 	var id int
+// 	var name string
+// 	var iter *gtk.TreeIter
+// 	for rows.Next() {
+// 		err := rows.Scan(&id, &name)
+// 		if err != nil {
+// 			log.Println(err.Error())
+// 		}
+// 		// iter = ls.Append()
+// 		col := []int{0, 1}
+// 		var val []interface{}
+// 		val = append(val, strconv.Itoa(id), name)
+// 		// log.Println(id, name)
+// 		if err = ls.InsertWithValues(iter, 0, col, val); err != nil {
+// 			log.Println(err.Error())
+// 		}
+// 	}
+// }
